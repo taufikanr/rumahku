@@ -1,36 +1,53 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# RumahKu — Sabah's Trusted Rental App
 
-## Getting Started
+RumahKu is a two-sided rental marketplace for **Sabah** (launching in Kota Kinabalu),
+built to fix the scams, deposit disputes, and housemate mismatches that plague the
+informal rental channels Sabahans rely on today (Facebook groups, WhatsApp, Mudah).
 
-First, run the development server:
+Built as the MVP for **KD04503 Technopreneurship** at **Universiti Malaysia Sabah** by **Group 10**.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+## ✨ Features
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- 🔎 **Verified listing search** with filters (area, price, distance to UMS, gender, sort)
+- 🛡️ **Scam detector** — scores every listing for risk and explains why
+- ⚖️ **Price-fairness check** vs the area average for that property type
+- 👥 **Housemate compatibility matching** + tenant reviews & ratings
+- ❤️ **Saved listings**
+- 🔐 **Auth** with tenant / landlord roles (Supabase, Row-Level-Security secured)
+- 🏠 **Landlord dashboard** + post-a-listing form with a **live scam preview**
+- 🧾 **Digital tenancy-agreement generator** (live document → print / save as PDF / store)
+- 💡 **Bill tracker** with due dates and status
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## 🧱 Tech stack
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+Next.js 16 (App Router) · React 19 · TypeScript · Tailwind CSS v4 · shadcn / Base UI ·
+Supabase (Postgres + Auth + RLS) · deployed on Vercel.
 
-## Learn More
+## 🚀 Local setup
 
-To learn more about Next.js, take a look at the following resources:
+1. `npm install`
+2. Set up Supabase — see **[SUPABASE_SETUP.md](./SUPABASE_SETUP.md)**, then create `.env.local`:
+   ```
+   NEXT_PUBLIC_SUPABASE_URL=...
+   NEXT_PUBLIC_SUPABASE_ANON_KEY=...
+   SUPABASE_SERVICE_ROLE_KEY=...   # only used by the seed script
+   ```
+3. Run `supabase/schema.sql` in the Supabase SQL editor (creates tables + RLS + trigger).
+4. `npm run seed` — seeds demo accounts + Kota Kinabalu listings, reviews, and bills.
+5. `npm run dev` → http://localhost:3000
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 👤 Demo accounts (password: `rumahku123`)
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+| Role | Email |
+| --- | --- |
+| Tenant | `tenant@demo.rumahku.my` |
+| Landlord | `landlord@demo.rumahku.my` |
 
-## Deploy on Vercel
+## 📜 Scripts
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- `npm run dev` / `npm run build` / `npm run start`
+- `npm run seed` — seed the Supabase database
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+A KD04503 Technopreneurship MVP · **Group 10** · Universiti Malaysia Sabah.
