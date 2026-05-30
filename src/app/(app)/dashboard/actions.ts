@@ -79,3 +79,14 @@ export async function deleteListingAction(formData: FormData) {
   revalidatePath("/browse");
   revalidatePath("/dashboard");
 }
+
+export async function setApplicationStatusAction(formData: FormData) {
+  await requireProfile("landlord");
+  const id = String(formData.get("id") ?? "");
+  const status = String(formData.get("status") ?? "pending");
+  if (!id) return;
+  const supabase = await createClient();
+  // RLS ensures a landlord can only update applications to their own listings.
+  await supabase.from("applications").update({ status }).eq("id", id);
+  revalidatePath("/dashboard");
+}

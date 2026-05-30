@@ -1,8 +1,9 @@
 "use client";
 
-import { useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { MessageCircle } from "lucide-react";
 import { toast } from "sonner";
+import { applyAction } from "@/app/(app)/listing/actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -19,11 +20,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { cn } from "@/lib/utils";
 
 export function ContactActions({
+  listingId,
   phone,
   title,
   landlordName,
   className,
 }: {
+  listingId: string;
   phone: string;
   title: string;
   landlordName: string;
@@ -33,8 +36,18 @@ export function ContactActions({
   const waLink = `https://wa.me/${digits}?text=${encodeURIComponent(
     `Hi ${landlordName}, I saw "${title}" on RumahKu. Is it still available? I'd like to arrange a viewing.`,
   )}`;
+
+  const [state, action, pending] = useActionState(applyAction, undefined);
   const [open, setOpen] = useState(false);
   const [msg, setMsg] = useState("");
+
+  useEffect(() => {
+    if (state?.ok) {
+      setOpen(false);
+      setMsg("");
+      toast.success("Application sent! The landlord will see it on their dashboard.");
+    }
+  }, [state]);
 
   return (
     <div className={cn("flex gap-2", className)}>
@@ -54,22 +67,20 @@ export function ContactActions({
           <DialogHeader>
             <DialogTitle>Apply for this room</DialogTitle>
             <DialogDescription>
-              Send a short intro to {landlordName}. They&apos;ll get back to you on WhatsApp.
+              Send a short intro to {landlordName}. They&apos;ll see it on their dashboard
+              and can reply on WhatsApp.
             </DialogDescription>
           </DialogHeader>
-          <form
-            onSubmit={(e) => {
-              e.preventDefault();
-              setOpen(false);
-              setMsg("");
-              toast.success("Application sent! The landlord will contact you on WhatsApp.");
-            }}
-            className="space-y-3"
-          >
+          <form action={action} className="space-y-3">
+            {state?.error && (
+              <p className="rounded-lg bg-danger/10 p-2.5 text-sm text-danger">{state.error}</p>
+            )}
+            <input type="hidden" name="listingId" value={listingId} />
             <div className="space-y-1.5">
               <Label htmlFor="apply-msg">Your message</Label>
               <Textarea
                 id="apply-msg"
+                name="message"
                 value={msg}
                 onChange={(e) => setMsg(e.target.value)}
                 required
@@ -81,7 +92,9 @@ export function ContactActions({
               <DialogClose render={<Button type="button" variant="outline" />}>
                 Cancel
               </DialogClose>
-              <Button type="submit">Send application</Button>
+              <Button type="submit" disabled={pending}>
+                {pending ? "Sending…" : "Send application"}
+              </Button>
             </DialogFooter>
           </form>
         </DialogContent>

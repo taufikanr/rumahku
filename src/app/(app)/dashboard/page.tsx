@@ -1,13 +1,17 @@
 import Link from "next/link";
-import { BadgeCheck, CheckCircle2, Home, Plus } from "lucide-react";
+import { BadgeCheck, Check, CheckCircle2, Home, Inbox, Plus, X } from "lucide-react";
 import { AREA_BY_ID, PROPERTY_TYPE_LABEL } from "@/lib/constants";
 import { requireProfile } from "@/lib/auth";
+import { getLandlordApplications, type LandlordApplication } from "@/lib/applications";
 import { getLandlordListings } from "@/lib/data";
-import { formatRM } from "@/lib/format";
+import { formatRM, relativeFromNow } from "@/lib/format";
+import { setApplicationStatusAction } from "@/app/(app)/dashboard/actions";
+import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ListingImage } from "@/components/listing/listing-image";
 import { ScamBadge } from "@/components/listing/listing-badges";
 import { DeleteListingButton } from "@/components/landlord/delete-listing-button";
+import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Landlord dashboard" };
 
@@ -18,6 +22,7 @@ export default async function DashboardPage({
 }) {
   const profile = await requireProfile("landlord");
   const listings = await getLandlordListings(profile.id);
+  const applications = await getLandlordApplications();
   const sp = await searchParams;
   const activeCount = listings.filter((l) => l.status === "active").length;
 
@@ -56,6 +61,22 @@ export default async function DashboardPage({
         <Stat label="Active" value={`${activeCount}`} />
         <Stat label="Plan" value="30-day free trial" />
       </div>
+
+      {applications.length > 0 && (
+        <section className="mt-8">
+          <h2 className="mb-3 flex items-center gap-2 font-heading text-lg font-bold">
+            <Inbox className="size-5" /> Applications
+            <span className="rounded-full bg-primary/10 px-2 py-0.5 text-xs font-semibold text-primary">
+              {applications.filter((a) => a.status === "pending").length} new
+            </span>
+          </h2>
+          <div className="space-y-2">
+            {applications.map((a) => (
+              <ApplicationRow key={a.id} app={a} />
+            ))}
+          </div>
+        </section>
+      )}
 
       <h2 className="mt-8 mb-3 font-heading text-lg font-bold">Your listings</h2>
 
@@ -115,6 +136,53 @@ function Stat({ label, value }: { label: string; value: string }) {
     <div className="rounded-xl border border-border bg-card p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
       <p className="mt-1 font-heading text-lg font-bold">{value}</p>
+    </div>
+  );
+}
+
+function ApplicationRow({ app }: { app: LandlordApplication }) {
+  const pending = app.status === "pending";
+  return (
+    <div className="rounded-xl border border-border bg-card p-4">
+      <div className="flex items-start justify-between gap-2">
+        <div className="min-w-0">
+          <p className="font-semibold">{app.tenantName}</p>
+          <p className="text-xs text-muted-foreground">
+            for {app.listingTitle} · {relativeFromNow(app.createdAt)}
+          </p>
+        </div>
+        <span
+          className={cn(
+            "shrink-0 rounded-full px-2 py-0.5 text-xs font-semibold capitalize",
+            app.status === "accepted"
+              ? "bg-safe/10 text-safe"
+              : app.status === "declined"
+                ? "bg-danger/10 text-danger"
+                : "bg-warn/15 text-warn",
+          )}
+        >
+          {app.status}
+        </span>
+      </div>
+      <p className="mt-2 text-sm text-muted-foreground">{app.message}</p>
+      {pending && (
+        <div className="mt-3 flex gap-2">
+          <form action={setApplicationStatusAction}>
+            <input type="hidden" name="id" value={app.id} />
+            <input type="hidden" name="status" value="accepted" />
+            <Button type="submit" size="sm">
+              <Check /> Accept
+            </Button>
+          </form>
+          <form action={setApplicationStatusAction}>
+            <input type="hidden" name="id" value={app.id} />
+            <input type="hidden" name="status" value="declined" />
+            <Button type="submit" size="sm" variant="outline">
+              <X /> Decline
+            </Button>
+          </form>
+        </div>
+      )}
     </div>
   );
 }

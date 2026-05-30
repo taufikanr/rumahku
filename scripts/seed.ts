@@ -160,8 +160,19 @@ async function main() {
     if (error) throw new Error(`bills: ${error.message}`);
   }
 
+  console.log("→ Seeding demo applications (tenant → landlord)…");
+  await db.from("applications").delete().eq("tenant_id", tenantId);
+  const appRows = [
+    { listing_id: "l-003", tenant_id: tenantId, tenant_name: DEMO_TENANT.fullName, message: "Hi! I'm a final-year UMS student, very tidy and quiet. Is this room still available for next semester?", status: "pending" },
+    { listing_id: "l-014", tenant_id: tenantId, tenant_name: DEMO_TENANT.fullName, message: "Interested in viewing this room this weekend — is that possible?", status: "pending" },
+  ];
+  {
+    const { error } = await db.from("applications").insert(appRows);
+    if (error) throw new Error(`applications: ${error.message}`);
+  }
+
   console.log("\n✅ Seed complete!");
-  console.log(`   Profiles: ${profiles.length}  Listings: ${listingRows.length}  Reviews: ${reviewRows.length}  Bills: ${billRows.length}`);
+  console.log(`   Profiles: ${profiles.length}  Listings: ${listingRows.length}  Reviews: ${reviewRows.length}  Bills: ${billRows.length}  Applications: ${appRows.length}`);
   console.log("\n   Demo logins (password: rumahku123):");
   console.log(`   • Tenant  — ${DEMO.tenant.email}`);
   console.log(`   • Landlord — ${DEMO.landlord.email}`);

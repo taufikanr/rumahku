@@ -257,6 +257,7 @@ export default async function ListingPage({
             </div>
             <ContactActions
               className="mt-4"
+              listingId={listing.id}
               phone={listing.landlord.phone}
               title={listing.title}
               landlordName={listing.landlord.fullName}
@@ -308,6 +309,7 @@ export default async function ListingPage({
           </div>
           <ContactActions
             className="flex-1"
+            listingId={listing.id}
             phone={listing.landlord.phone}
             title={listing.title}
             landlordName={listing.landlord.fullName}
