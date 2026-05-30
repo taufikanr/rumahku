@@ -26,7 +26,7 @@ import {
   ScamBadge,
   VerifiedBadge,
 } from "@/components/listing/listing-badges";
-import { ScamPanel } from "@/components/listing/scam-panel";
+import { ScamPanelLive } from "@/components/listing/scam-panel-live";
 import { ContactActions } from "@/components/listing/contact-actions";
 import { SaveButton } from "@/components/listing/save-button";
 
@@ -294,7 +294,7 @@ export default async function ListingPage({
           </div>
 
           {/* Safety check */}
-          <ScamPanel scam={listing.scam} />
+          <ScamPanelLive listingId={listing.id} initial={listing.scam} />
         </aside>
       </div>
 
