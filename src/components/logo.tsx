@@ -1,9 +1,10 @@
+import Image from "next/image";
 import { cn } from "@/lib/utils";
 
 const sizeMap = {
-  sm: { tile: "size-7 rounded-lg", svg: 18, text: "text-base" },
-  md: { tile: "size-9 rounded-xl", svg: 22, text: "text-xl" },
-  lg: { tile: "size-12 rounded-2xl", svg: 30, text: "text-2xl" },
+  sm: { box: "size-7", text: "text-base" },
+  md: { box: "size-9", text: "text-xl" },
+  lg: { box: "size-12", text: "text-2xl" },
 } as const;
 
 export function LogoMark({
@@ -16,36 +17,17 @@ export function LogoMark({
   const s = sizeMap[size];
   return (
     <span
-      className={cn(
-        "inline-flex items-center justify-center bg-primary text-primary-foreground shadow-sm shadow-primary/30",
-        s.tile,
-        className,
-      )}
+      className={cn("inline-flex shrink-0 items-center justify-center", s.box, className)}
       aria-hidden
     >
-      <svg
-        width={s.svg}
-        height={s.svg}
-        viewBox="0 0 32 32"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-      >
-        <path
-          d="M16 4 28 13.2V26a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V13.2L16 4Z"
-          fill="currentColor"
-          fillOpacity="0.18"
-          stroke="currentColor"
-          strokeWidth="2.2"
-          strokeLinejoin="round"
-        />
-        <path
-          d="m11.5 17.2 3.2 3.2 6-6.4"
-          stroke="currentColor"
-          strokeWidth="2.6"
-          strokeLinecap="round"
-          strokeLinejoin="round"
-        />
-      </svg>
+      <Image
+        src="/brand/logo-mark.png"
+        alt=""
+        width={452}
+        height={438}
+        className="size-full object-contain"
+        priority
+      />
     </span>
   );
 }
@@ -70,7 +52,7 @@ export function Logo({
             s.text,
           )}
         >
-          Rumah<span className="text-primary">Ku</span>
+          Rumah<span className="text-brand-teal">Ku</span>
         </span>
       )}
     </span>

@@ -172,7 +172,7 @@ export default function RadialOrbitalTimeline({
           }}
         >
           {/* Center hub */}
-          <div className="absolute z-10 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-teal-400 via-cyan-500 to-emerald-500 animate-pulse">
+          <div className="absolute z-10 flex size-16 items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-blue-700 animate-pulse">
             <div className="absolute size-20 animate-ping rounded-full border border-white/20 opacity-70"></div>
             <div
               className="absolute size-24 animate-ping rounded-full border border-white/10 opacity-50"
@@ -218,7 +218,7 @@ export default function RadialOrbitalTimeline({
                     isPulsing ? "animate-pulse duration-1000" : ""
                   }`}
                   style={{
-                    background: `radial-gradient(circle, rgba(45,212,191,0.25) 0%, rgba(45,212,191,0) 70%)`,
+                    background: `radial-gradient(circle, rgba(59,130,246,0.25) 0%, rgba(59,130,246,0) 70%)`,
                     width: `${item.energy * 0.5 + 40}px`,
                     height: `${item.energy * 0.5 + 40}px`,
                     left: `-${(item.energy * 0.5 + 40 - 40) / 2}px`,
@@ -229,9 +229,9 @@ export default function RadialOrbitalTimeline({
                 <div
                   className={`flex size-10 items-center justify-center rounded-full border-2 transition-all duration-300 ${
                     isExpanded
-                      ? "scale-150 border-white bg-white text-teal-700 shadow-lg shadow-teal-400/30"
+                      ? "scale-150 border-white bg-white text-blue-700 shadow-lg shadow-blue-400/30"
                       : isRelated
-                        ? "animate-pulse border-white bg-white/60 text-teal-800"
+                        ? "animate-pulse border-white bg-white/60 text-blue-800"
                         : "border-white/40 bg-neutral-900 text-white"
                   }`}
                 >
@@ -247,7 +247,7 @@ export default function RadialOrbitalTimeline({
                 </div>
 
                 {isExpanded && (
-                  <Card className="absolute top-20 left-1/2 w-64 -translate-x-1/2 overflow-visible border-white/20 bg-neutral-900/95 text-white shadow-xl shadow-teal-500/10 backdrop-blur-lg ring-0">
+                  <Card className="absolute top-20 left-1/2 w-64 -translate-x-1/2 overflow-visible border-white/20 bg-neutral-900/95 text-white shadow-xl shadow-blue-500/10 backdrop-blur-lg ring-0">
                     <div className="absolute -top-3 left-1/2 h-3 w-px -translate-x-1/2 bg-white/40"></div>
                     <CardHeader className="pb-2">
                       <div className="flex items-center justify-between gap-2">
@@ -277,7 +277,7 @@ export default function RadialOrbitalTimeline({
                         </div>
                         <div className="h-1 w-full overflow-hidden rounded-full bg-white/10">
                           <div
-                            className="h-full bg-gradient-to-r from-teal-400 to-emerald-500"
+                            className="h-full bg-gradient-to-r from-cyan-400 to-blue-600"
                             style={{ width: `${item.energy}%` }}
                           ></div>
                         </div>

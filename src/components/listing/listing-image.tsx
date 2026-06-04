@@ -2,8 +2,8 @@ import { Building2, DoorOpen, Home } from "lucide-react";
 import type { PropertyType } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-// Cohesive hue palette (teal / green / blue / emerald / amber / indigo).
-const PALETTE = [188, 165, 205, 150, 38, 250];
+// Cohesive hue palette (blue / green / sky / emerald / amber / indigo).
+const PALETTE = [230, 165, 205, 150, 38, 250];
 
 function hash(s: string): number {
   let h = 0;
