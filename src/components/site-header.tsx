@@ -36,6 +36,7 @@ function navFor(user: HeaderUser) {
     ];
   return [
     { href: "/browse", label: "Browse rooms" },
+    { href: "/passport", label: "Trust Passport" },
     { href: "/saved", label: "Saved" },
     { href: "/bills", label: "Bills" },
   ];

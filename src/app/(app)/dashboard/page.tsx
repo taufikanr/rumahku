@@ -1,9 +1,10 @@
 import Link from "next/link";
-import { BadgeCheck, Check, CheckCircle2, Home, Inbox, Plus, X } from "lucide-react";
+import { BadgeCheck, Check, CheckCircle2, Home, Inbox, Plus, ShieldCheck, Star, X } from "lucide-react";
 import { AREA_BY_ID, PROPERTY_TYPE_LABEL } from "@/lib/constants";
 import { requireProfile } from "@/lib/auth";
 import { getLandlordApplications, type LandlordApplication } from "@/lib/applications";
-import { getLandlordListings } from "@/lib/data";
+import { getLandlordListings, getDemoTenant } from "@/lib/data";
+import { getPassportFor } from "@/lib/passport";
 import { formatRM, relativeFromNow } from "@/lib/format";
 import { setApplicationStatusAction } from "@/app/(app)/dashboard/actions";
 import { Button } from "@/components/ui/button";
@@ -24,6 +25,14 @@ export default async function DashboardPage({
   const listings = await getLandlordListings(profile.id);
   const applications = await getLandlordApplications();
   const sp = await searchParams;
+  // Demo applicant Trust Passport (DB-backed per-tenant in production).
+  const applicantPassport = getPassportFor(getDemoTenant());
+  const trust = {
+    score: applicantPassport.score.value,
+    rep: applicantPassport.reputation.avg,
+    onTime: applicantPassport.paymentSummary.onTimeCount,
+    handle: applicantPassport.handle,
+  };
   const activeCount = listings.filter((l) => l.status === "active").length;
 
   return (
@@ -72,7 +81,7 @@ export default async function DashboardPage({
           </h2>
           <div className="space-y-2">
             {applications.map((a) => (
-              <ApplicationRow key={a.id} app={a} />
+              <ApplicationRow key={a.id} app={a} trust={trust} />
             ))}
           </div>
         </section>
@@ -140,7 +149,13 @@ function Stat({ label, value }: { label: string; value: string }) {
   );
 }
 
-function ApplicationRow({ app }: { app: LandlordApplication }) {
+function ApplicationRow({
+  app,
+  trust,
+}: {
+  app: LandlordApplication;
+  trust: { score: number; rep: number; onTime: number; handle: string };
+}) {
   const pending = app.status === "pending";
   return (
     <div className="rounded-xl border border-border bg-card p-4">
@@ -164,6 +179,23 @@ function ApplicationRow({ app }: { app: LandlordApplication }) {
           {app.status}
         </span>
       </div>
+
+      {/* Trust Passport at a glance — the landlord-side payoff of the passport */}
+      <Link
+        href={`/p/${trust.handle}`}
+        className="mt-2 flex flex-wrap items-center gap-x-3 gap-y-1 rounded-lg border border-primary/20 bg-primary/5 px-3 py-2 text-xs transition-colors hover:bg-primary/10"
+      >
+        <span className="inline-flex items-center gap-1 font-semibold text-primary">
+          <ShieldCheck className="size-3.5" /> Trust Passport
+        </span>
+        <span className="font-bold text-foreground tabular-nums">{trust.score}</span>
+        <span className="inline-flex items-center gap-0.5 text-foreground">
+          <Star className="size-3 fill-premium text-premium" /> {trust.rep.toFixed(1)}
+        </span>
+        <span className="text-muted-foreground">{trust.onTime} on-time payments</span>
+        <span className="ml-auto font-medium text-primary">View →</span>
+      </Link>
+
       <p className="mt-2 text-sm text-muted-foreground">{app.message}</p>
       {pending && (
         <div className="mt-3 flex gap-2">
