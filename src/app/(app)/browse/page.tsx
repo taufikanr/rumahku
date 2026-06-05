@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { LayoutGrid, MapPin, SearchX } from "lucide-react";
+import { Bell, LayoutGrid, MapPin, SearchX } from "lucide-react";
+import { saveSearchAction } from "@/app/(app)/alerts/actions";
 import {
   AREA_BY_ID,
   PROPERTY_TYPE_LABEL,
@@ -115,6 +116,16 @@ export default async function BrowsePage({
           <span className="font-semibold text-foreground">{listings.length}</span>{" "}
           {listings.length === 1 ? "home" : "homes"} found
         </p>
+        <div className="flex items-center gap-2">
+        <form action={saveSearchAction}>
+          <input type="hidden" name="query" value={JSON.stringify(filters)} />
+          <button
+            type="submit"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
+          >
+            <Bell className="size-4" /> Save search
+          </button>
+        </form>
         <div className="inline-flex rounded-lg border border-border bg-card p-0.5 text-sm">
           <Link
             href={qs("list")}
@@ -134,6 +145,7 @@ export default async function BrowsePage({
           >
             <MapPin className="size-4" /> Map
           </Link>
+        </div>
         </div>
       </div>
 

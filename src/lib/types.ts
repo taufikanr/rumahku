@@ -103,6 +103,8 @@ export interface Listing {
   furnished: FurnishLevel;
   genderPreference: GenderPreference;
   photos: string[];
+  /** Optional landlord-recorded walkthrough video (Supabase Storage URL). */
+  walkthroughUrl?: string;
   amenities: string[];
   availableFrom: string;
   currentHousemates: Housemate[];

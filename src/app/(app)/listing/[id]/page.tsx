@@ -2,6 +2,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import {
   ArrowLeft,
+  BadgeCheck,
   Bath,
   BedDouble,
   CalendarDays,
@@ -31,6 +32,7 @@ import { ContactActions } from "@/components/listing/contact-actions";
 import { SaveButton } from "@/components/listing/save-button";
 import { NeighbourhoodInsights } from "@/components/listing/neighbourhood-insights";
 import { ReviewForm } from "@/components/listing/review-form";
+import { RequestViewing } from "@/components/listing/request-viewing";
 
 const FURNISH = {
   unfurnished: "Unfurnished",
@@ -102,6 +104,21 @@ export default async function ListingPage({
           />
         ))}
       </div>
+
+      {/* Verified walkthrough video */}
+      {listing.walkthroughUrl && (
+        <div className="mt-4">
+          <div className="mb-2 inline-flex items-center gap-1.5 rounded-full bg-safe/10 px-2.5 py-1 text-xs font-semibold text-safe">
+            <BadgeCheck className="size-3.5" /> Verified walkthrough
+          </div>
+          <video
+            src={listing.walkthroughUrl}
+            controls
+            preload="metadata"
+            className="aspect-video w-full rounded-2xl border border-border bg-black"
+          />
+        </div>
+      )}
 
       {/* Title row */}
       <div className="mt-5 flex flex-wrap items-start justify-between gap-4">
@@ -274,6 +291,12 @@ export default async function ListingPage({
               phone={listing.landlord.phone}
               title={listing.title}
               landlordName={listing.landlord.fullName}
+            />
+            <RequestViewing
+              className="mt-2 w-full"
+              listingId={listing.id}
+              landlordId={listing.landlordId}
+              listingTitle={listing.title}
             />
           </div>
 

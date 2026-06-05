@@ -1,0 +1,75 @@
+export type Lang = "en" | "ms";
+export const LANGS: { code: Lang; label: string }[] = [
+  { code: "en", label: "EN" },
+  { code: "ms", label: "BM" },
+];
+export const LANG_COOKIE = "lang";
+
+type Dict = Record<string, string>;
+
+const en: Dict = {
+  "nav.browseRooms": "Browse rooms",
+  "nav.howItWorks": "How it works",
+  "nav.forLandlords": "For landlords",
+  "nav.browse": "Browse",
+  "nav.dashboard": "Dashboard",
+  "nav.deposits": "Deposits",
+  "nav.messages": "Messages",
+  "nav.passport": "Passport",
+  "nav.tenancy": "Tenancy agreement",
+  "nav.viewingRequests": "Viewing requests",
+  "nav.savedListings": "Saved listings",
+  "nav.savedSearches": "Saved searches",
+  "nav.myViewings": "My viewings",
+  "nav.bills": "Bills",
+  "cta.login": "Log in",
+  "cta.getStarted": "Get started",
+  "cta.logout": "Log out",
+  "hero.badge": "Built for Sabah renters",
+  "hero.title": "Rent in Sabah",
+  "hero.titleAccent": "without the scams.",
+  "hero.subtitle":
+    "Verified listings, an AI scam check, fair-price insights, and compatible housemates — all in one app made for Kota Kinabalu. No more risky Facebook posts.",
+  "hero.browseCta": "Browse rooms in KK",
+  "hero.listCta": "List your property",
+  "hero.verifiedLandlords": "Verified landlords",
+  "hero.scamProtection": "Scam protection",
+  "hero.fairPrice": "Fair-price check",
+};
+
+const ms: Dict = {
+  "nav.browseRooms": "Cari Bilik",
+  "nav.howItWorks": "Cara ia berfungsi",
+  "nav.forLandlords": "Untuk tuan rumah",
+  "nav.browse": "Cari",
+  "nav.dashboard": "Papan Pemuka",
+  "nav.deposits": "Deposit",
+  "nav.messages": "Mesej",
+  "nav.passport": "Pasport",
+  "nav.tenancy": "Perjanjian sewa",
+  "nav.viewingRequests": "Permintaan lawatan",
+  "nav.savedListings": "Disimpan",
+  "nav.savedSearches": "Carian disimpan",
+  "nav.myViewings": "Lawatan saya",
+  "nav.bills": "Bil",
+  "cta.login": "Log Masuk",
+  "cta.getStarted": "Mula",
+  "cta.logout": "Log Keluar",
+  "hero.badge": "Dibina untuk penyewa Sabah",
+  "hero.title": "Sewa di Sabah",
+  "hero.titleAccent": "tanpa penipuan.",
+  "hero.subtitle":
+    "Senarai disahkan, semakan penipuan AI, panduan harga adil, dan teman serumah yang serasi — semua dalam satu aplikasi untuk Kota Kinabalu. Tiada lagi pos Facebook berisiko.",
+  "hero.browseCta": "Cari bilik di KK",
+  "hero.listCta": "Senaraikan hartanah",
+  "hero.verifiedLandlords": "Tuan rumah disahkan",
+  "hero.scamProtection": "Perlindungan penipuan",
+  "hero.fairPrice": "Semakan harga adil",
+};
+
+const DICT: Record<Lang, Dict> = { en, ms };
+
+/** Translate a key for a language, falling back to English then the key itself. */
+export function t(lang: Lang, key: string): string {
+  return DICT[lang][key] ?? DICT.en[key] ?? key;
+}

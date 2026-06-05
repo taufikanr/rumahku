@@ -12,8 +12,11 @@ import {
 import { ButtonLink } from "@/components/ui/button-link";
 import { FeatureOrbital } from "@/components/feature-orbital";
 import { RESEARCH } from "@/lib/constants";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 
-export default function LandingPage() {
+export default async function LandingPage() {
+  const lang = await getLang();
   return (
     <>
       {/* Hero */}
@@ -23,19 +26,18 @@ export default function LandingPage() {
         <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:py-20">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
-              <Sparkles className="size-3.5" /> Built for Sabah renters
+              <Sparkles className="size-3.5" /> {t(lang, "hero.badge")}
             </span>
             <h1 className="mt-5 font-heading text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
-              Rent in Sabah <span className="text-primary">without the scams.</span>
+              {t(lang, "hero.title")}{" "}
+              <span className="text-primary">{t(lang, "hero.titleAccent")}</span>
             </h1>
             <p className="mt-5 max-w-md text-lg text-muted-foreground">
-              Verified listings, an AI scam check, fair-price insights, and compatible
-              housemates — all in one app made for Kota Kinabalu. No more risky
-              Facebook posts.
+              {t(lang, "hero.subtitle")}
             </p>
             <div className="mt-7 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/browse" size="lg" className="h-12 px-6 text-base">
-                <Search /> Browse rooms in KK
+                <Search /> {t(lang, "hero.browseCta")}
               </ButtonLink>
               <ButtonLink
                 href="/signup?role=landlord"
@@ -43,18 +45,18 @@ export default function LandingPage() {
                 variant="outline"
                 className="h-12 px-6 text-base"
               >
-                List your property <ArrowRight />
+                {t(lang, "hero.listCta")} <ArrowRight />
               </ButtonLink>
             </div>
             <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
-                <BadgeCheck className="size-4 text-primary" /> Verified landlords
+                <BadgeCheck className="size-4 text-primary" /> {t(lang, "hero.verifiedLandlords")}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <ShieldCheck className="size-4 text-safe" /> Scam protection
+                <ShieldCheck className="size-4 text-safe" /> {t(lang, "hero.scamProtection")}
               </span>
               <span className="inline-flex items-center gap-1.5">
-                <Scale className="size-4 text-primary" /> Fair-price check
+                <Scale className="size-4 text-primary" /> {t(lang, "hero.fairPrice")}
               </span>
             </div>
           </div>

@@ -18,6 +18,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { ScamPanel } from "@/components/listing/scam-panel";
 import { PriceBadge } from "@/components/listing/listing-badges";
 import { PhotoUploader } from "@/components/landlord/photo-uploader";
+import { VideoUploader } from "@/components/landlord/video-uploader";
 
 const SELECT_CLS =
   "h-9 w-full rounded-lg border border-input bg-background px-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
@@ -91,6 +92,11 @@ export function ListingForm({
         <div>
           <Label className="mb-2 block">Photos</Label>
           <PhotoUploader userId={userId} />
+        </div>
+
+        <div>
+          <Label className="mb-2 block">Verified walkthrough video (optional)</Label>
+          <VideoUploader userId={userId} />
         </div>
 
         <div className="grid grid-cols-2 gap-4">

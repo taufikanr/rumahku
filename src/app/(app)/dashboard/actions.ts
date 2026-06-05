@@ -43,6 +43,8 @@ export async function createListingAction(
     .map(String)
     .filter((u) => u.startsWith("http"));
   const photos = uploaded.length ? uploaded : [1, 2, 3, 4].map((n) => `${id}-${n}`);
+  const walkthrough = String(formData.get("walkthrough") ?? "").trim();
+  const walkthroughUrl = walkthrough.startsWith("http") ? walkthrough : null;
 
   const supabase = await createClient();
   const { error } = await supabase.from("listings").insert({
@@ -63,6 +65,7 @@ export async function createListingAction(
     furnished,
     gender_preference: gender,
     photos,
+    walkthrough_url: walkthroughUrl,
     amenities,
     available_from: availableFrom,
     current_housemates: [],

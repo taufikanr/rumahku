@@ -2,11 +2,19 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { LogOut, Menu } from "lucide-react";
+import { ChevronDown, LogOut, Menu } from "lucide-react";
 import { signOutAction } from "@/app/(auth)/actions";
 import { Logo } from "@/components/logo";
+import { LanguageSwitcher } from "@/components/language-switcher";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Sheet,
   SheetClose,
@@ -16,34 +24,47 @@ import {
   SheetTrigger,
 } from "@/components/ui/sheet";
 import { cn } from "@/lib/utils";
+import { t, type Lang } from "@/lib/i18n";
 import type { Role } from "@/lib/types";
 
 type HeaderUser = { fullName: string; role: Role } | null;
+type NavItem = { href: string; key: string };
 
-const GUEST_NAV = [
-  { href: "/browse", label: "Browse rooms" },
-  { href: "/#how-it-works", label: "How it works" },
-  { href: "/#for-landlords", label: "For landlords" },
+const GUEST_NAV: NavItem[] = [
+  { href: "/browse", key: "nav.browseRooms" },
+  { href: "/#how-it-works", key: "nav.howItWorks" },
+  { href: "/#for-landlords", key: "nav.forLandlords" },
 ];
 
-function navFor(user: HeaderUser) {
-  if (!user) return GUEST_NAV;
+function navFor(user: HeaderUser): { primary: NavItem[]; secondary: NavItem[] } {
+  if (!user) return { primary: GUEST_NAV, secondary: [] };
   if (user.role === "landlord")
-    return [
-      { href: "/browse", label: "Browse" },
-      { href: "/dashboard", label: "Dashboard" },
-      { href: "/dashboard/tenancy", label: "Tenancy" },
-      { href: "/deposits", label: "Deposits" },
-      { href: "/messages", label: "Messages" },
-    ];
-  return [
-    { href: "/browse", label: "Browse" },
-    { href: "/passport", label: "Passport" },
-    { href: "/saved", label: "Saved" },
-    { href: "/bills", label: "Bills" },
-    { href: "/deposits", label: "Deposits" },
-    { href: "/messages", label: "Messages" },
-  ];
+    return {
+      primary: [
+        { href: "/browse", key: "nav.browse" },
+        { href: "/dashboard", key: "nav.dashboard" },
+        { href: "/deposits", key: "nav.deposits" },
+        { href: "/messages", key: "nav.messages" },
+      ],
+      secondary: [
+        { href: "/dashboard/tenancy", key: "nav.tenancy" },
+        { href: "/viewings", key: "nav.viewingRequests" },
+      ],
+    };
+  return {
+    primary: [
+      { href: "/browse", key: "nav.browse" },
+      { href: "/passport", key: "nav.passport" },
+      { href: "/deposits", key: "nav.deposits" },
+      { href: "/messages", key: "nav.messages" },
+    ],
+    secondary: [
+      { href: "/saved", key: "nav.savedListings" },
+      { href: "/alerts", key: "nav.savedSearches" },
+      { href: "/viewings", key: "nav.myViewings" },
+      { href: "/bills", key: "nav.bills" },
+    ],
+  };
 }
 
 function initials(name: string) {
@@ -55,9 +76,26 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export function SiteHeader({ user = null, unread = 0 }: { user?: HeaderUser; unread?: number }) {
+function UnreadDot({ href, unread }: { href: string; unread: number }) {
+  if (href !== "/messages" || unread <= 0) return null;
+  return (
+    <span className="ml-1 inline-flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+      {unread}
+    </span>
+  );
+}
+
+export function SiteHeader({
+  user = null,
+  unread = 0,
+  lang = "en",
+}: {
+  user?: HeaderUser;
+  unread?: number;
+  lang?: Lang;
+}) {
   const pathname = usePathname();
-  const nav = navFor(user);
+  const { primary, secondary } = navFor(user);
 
   return (
     <header className="sticky top-0 z-50 w-full border-b border-border/70 bg-background/80 backdrop-blur-md print:hidden">
@@ -67,7 +105,7 @@ export function SiteHeader({ user = null, unread = 0 }: { user?: HeaderUser; unr
         </Link>
 
         <nav className="hidden items-center gap-1 md:flex">
-          {nav.map((item) => (
+          {primary.map((item) => (
             <Link
               key={item.href}
               href={item.href}
@@ -76,38 +114,51 @@ export function SiteHeader({ user = null, unread = 0 }: { user?: HeaderUser; unr
                 pathname === item.href && "text-foreground",
               )}
             >
-              {item.label}
-              {item.href === "/messages" && unread > 0 && (
-                <span className="ml-1 inline-flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
-                  {unread}
-                </span>
-              )}
+              {t(lang, item.key)}
+              <UnreadDot href={item.href} unread={unread} />
             </Link>
           ))}
         </nav>
 
         <div className="hidden items-center gap-2 md:flex">
+          <LanguageSwitcher lang={lang} />
           {user ? (
             <>
-              <span className="flex items-center gap-2">
-                <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
-                  {initials(user.fullName)}
-                </span>
-                <span className="text-sm font-medium">{user.fullName.split(" ")[0]}</span>
-              </span>
-              <form action={signOutAction}>
-                <Button type="submit" variant="ghost" size="lg" aria-label="Log out">
-                  <LogOut />
-                </Button>
-              </form>
+              <form id="logout-form" action={signOutAction} className="hidden" />
+              <DropdownMenu>
+                <DropdownMenuTrigger
+                  render={
+                    <button className="flex items-center gap-2 rounded-full py-1 pl-1 pr-2 hover:bg-muted" />
+                  }
+                >
+                  <span className="flex size-8 items-center justify-center rounded-full bg-primary/10 text-xs font-bold text-primary">
+                    {initials(user.fullName)}
+                  </span>
+                  <span className="text-sm font-medium">{user.fullName.split(" ")[0]}</span>
+                  <ChevronDown className="size-4 text-muted-foreground" />
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-52">
+                  {secondary.map((item) => (
+                    <DropdownMenuItem key={item.href} render={<Link href={item.href} />}>
+                      {t(lang, item.key)}
+                    </DropdownMenuItem>
+                  ))}
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem
+                    render={<button type="submit" form="logout-form" className="w-full" />}
+                  >
+                    <LogOut className="size-4" /> {t(lang, "cta.logout")}
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </>
           ) : (
             <>
               <ButtonLink href="/login" variant="ghost" size="lg">
-                Log in
+                {t(lang, "cta.login")}
               </ButtonLink>
               <ButtonLink href="/signup" size="lg">
-                Get started
+                {t(lang, "cta.getStarted")}
               </ButtonLink>
             </>
           )}
@@ -129,7 +180,7 @@ export function SiteHeader({ user = null, unread = 0 }: { user?: HeaderUser; unr
               </SheetTitle>
             </SheetHeader>
             <div className="flex flex-col gap-1 px-4">
-              {nav.map((item) => (
+              {[...primary, ...secondary].map((item) => (
                 <SheetClose
                   key={item.href}
                   render={
@@ -139,16 +190,13 @@ export function SiteHeader({ user = null, unread = 0 }: { user?: HeaderUser; unr
                     />
                   }
                 >
-                  {item.label}
-                  {item.href === "/messages" && unread > 0 && (
-                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
-                      {unread}
-                    </span>
-                  )}
+                  {t(lang, item.key)}
+                  <UnreadDot href={item.href} unread={unread} />
                 </SheetClose>
               ))}
             </div>
-            <div className="mt-auto flex flex-col gap-2 px-4 pb-6">
+            <div className="mt-auto flex flex-col gap-3 px-4 pb-6">
+              <LanguageSwitcher lang={lang} className="self-start" />
               {user ? (
                 <>
                   <p className="px-1 text-sm text-muted-foreground">
@@ -156,7 +204,7 @@ export function SiteHeader({ user = null, unread = 0 }: { user?: HeaderUser; unr
                   </p>
                   <form action={signOutAction}>
                     <Button type="submit" variant="outline" size="lg" className="w-full">
-                      <LogOut /> Log out
+                      <LogOut /> {t(lang, "cta.logout")}
                     </Button>
                   </form>
                 </>
@@ -170,14 +218,14 @@ export function SiteHeader({ user = null, unread = 0 }: { user?: HeaderUser; unr
                       />
                     }
                   >
-                    Log in
+                    {t(lang, "cta.login")}
                   </SheetClose>
                   <SheetClose
                     render={
                       <Link href="/signup" className={cn(buttonVariants({ size: "lg" }))} />
                     }
                   >
-                    Get started
+                    {t(lang, "cta.getStarted")}
                   </SheetClose>
                 </>
               )}

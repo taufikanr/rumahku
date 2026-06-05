@@ -44,6 +44,7 @@ interface ListingRow {
   furnished: string;
   gender_preference: string;
   photos: string[] | null;
+  walkthrough_url: string | null;
   amenities: string[] | null;
   available_from: string | null;
   current_housemates: Housemate[] | null;
@@ -115,6 +116,7 @@ function buildFromRow(row: ListingRow): Listing {
     furnished: row.furnished as FurnishLevel,
     genderPreference: row.gender_preference as GenderPreference,
     photos: row.photos ?? [],
+    walkthroughUrl: row.walkthrough_url ?? undefined,
     amenities: row.amenities ?? [],
     availableFrom: row.available_from ?? row.created_at,
     currentHousemates: row.current_housemates ?? [],
