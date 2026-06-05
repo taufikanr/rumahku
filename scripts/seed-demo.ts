@@ -124,9 +124,9 @@ async function main() {
     const a = (d1.data as { id: string }).id;
     check(
       (await db.from("deposit_events").insert([
-        { deposit_id: a, author_id: landlordId, author_name: LANDLORD_NAME, type: "created", note: `Deposit protection opened for ${TENANT_NAME}.`, created_at: days(-30) },
+        { deposit_id: a, author_id: landlordId, author_name: LANDLORD_NAME, type: "created", note: `Deposit protection opened for ${TENANT_NAME}.`, photos: [], created_at: days(-30) },
         { deposit_id: a, author_id: tenantId, author_name: TENANT_NAME, type: "movein_evidence", note: "Move-in condition — everything clean and in order.", photos: [IMG[3], IMG[5]], created_at: days(-29) },
-        { deposit_id: a, author_id: landlordId, author_name: LANDLORD_NAME, type: "note", note: "Confirmed, thanks Sara. Welcome in!", created_at: days(-29) },
+        { deposit_id: a, author_id: landlordId, author_name: LANDLORD_NAME, type: "note", note: "Confirmed, thanks Sara. Welcome in!", photos: [], created_at: days(-29) },
       ])).error,
       "events A",
     );
@@ -141,10 +141,10 @@ async function main() {
     const bId = (d2.data as { id: string }).id;
     check(
       (await db.from("deposit_events").insert([
-        { deposit_id: bId, author_id: landlordId, author_name: LANDLORD_NAME, type: "created", note: "Deposit protection opened.", created_at: days(-200) },
+        { deposit_id: bId, author_id: landlordId, author_name: LANDLORD_NAME, type: "created", note: "Deposit protection opened.", photos: [], created_at: days(-200) },
         { deposit_id: bId, author_id: tenantId, author_name: TENANT_NAME, type: "movein_evidence", note: "Move-in photos.", photos: [IMG[2]], created_at: days(-199) },
         { deposit_id: bId, author_id: tenantId, author_name: TENANT_NAME, type: "moveout_evidence", note: "Move-out — cleaned the room, returned the keys.", photos: [IMG[4]], created_at: days(-2) },
-        { deposit_id: bId, author_id: landlordId, author_name: LANDLORD_NAME, type: "return_proposed", amount: 510, note: "Returning RM510. RM50 deducted for professional cleaning (receipt attached).", created_at: days(-1) },
+        { deposit_id: bId, author_id: landlordId, author_name: LANDLORD_NAME, type: "return_proposed", amount: 510, note: "Returning RM510. RM50 deducted for professional cleaning (receipt attached).", photos: [], created_at: days(-1) },
       ])).error,
       "events B",
     );
