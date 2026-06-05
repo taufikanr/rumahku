@@ -16,11 +16,12 @@ export function ListingCard({ listing }: { listing: EnrichedListing }) {
   const area = AREA_BY_ID[listing.areaId];
   return (
     <div className="group relative flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-shadow hover:shadow-lg">
-      {/* Stretched link makes the whole card clickable (valid HTML — no nested anchors). */}
+      {/* Stretched link makes the whole card clickable (valid HTML — no nested anchors).
+          Sits above the card content (z-10); interactive controls like Save sit above it (z-20). */}
       <Link
         href={`/listing/${listing.id}`}
         aria-label={listing.title}
-        className="absolute inset-0 z-0"
+        className="absolute inset-0 z-10"
       />
 
       <div className="relative">
@@ -32,7 +33,7 @@ export function ListingCard({ listing }: { listing: EnrichedListing }) {
         <div className="pointer-events-none absolute top-2 left-2 z-10 flex gap-1.5">
           {listing.isVerified && <VerifiedBadge solid />}
         </div>
-        <div className="absolute top-2 right-2 z-10 flex items-center gap-1.5">
+        <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5">
           <span className="pointer-events-none">
             <ScamBadge level={listing.scam.level} solid />
           </span>
