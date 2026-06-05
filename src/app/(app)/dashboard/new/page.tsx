@@ -22,7 +22,7 @@ export default async function NewListingPage() {
       <p className="mb-6 text-sm text-muted-foreground">
         Fill in the details — the live check on the right shows how renters will see it.
       </p>
-      <ListingForm landlordVerified={profile.isVerified} />
+      <ListingForm landlordVerified={profile.isVerified} userId={profile.id} />
     </div>
   );
 }

@@ -37,7 +37,12 @@ export async function createListingAction(
   if (!area) return { error: "Please choose a valid area." };
 
   const id = crypto.randomUUID();
-  const photos = [1, 2, 3, 4].map((n) => `${id}-${n}`);
+  // Real uploaded photo URLs (Supabase Storage); fall back to branded placeholders.
+  const uploaded = formData
+    .getAll("photos")
+    .map(String)
+    .filter((u) => u.startsWith("http"));
+  const photos = uploaded.length ? uploaded : [1, 2, 3, 4].map((n) => `${id}-${n}`);
 
   const supabase = await createClient();
   const { error } = await supabase.from("listings").insert({

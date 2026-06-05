@@ -18,21 +18,36 @@ function iconFor(type?: PropertyType) {
 }
 
 /**
- * Branded gradient placeholder for a listing photo. Deterministic by `seed`,
- * so a listing's gallery shows varied-but-stable tiles with zero external
- * image dependencies (always loads, online or offline).
+ * A listing photo. If `seed` is a real image URL (uploaded to Supabase Storage)
+ * it renders that photo; otherwise it falls back to a deterministic branded
+ * gradient placeholder, so a listing always shows something (online or offline).
  */
 export function ListingImage({
   seed,
   type,
   className,
   iconClassName,
+  alt,
 }: {
   seed: string;
   type?: PropertyType;
   className?: string;
   iconClassName?: string;
+  alt?: string;
 }) {
+  if (seed.startsWith("http")) {
+    return (
+      <div className={cn("relative overflow-hidden bg-muted", className)}>
+        {/* eslint-disable-next-line @next/next/no-img-element */}
+        <img
+          src={seed}
+          alt={alt ?? "Listing photo"}
+          loading="lazy"
+          className="size-full object-cover"
+        />
+      </div>
+    );
+  }
   const hue = PALETTE[hash(seed) % PALETTE.length];
   const Icon = iconFor(type);
   return (

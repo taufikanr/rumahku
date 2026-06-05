@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { ScamPanel } from "@/components/listing/scam-panel";
 import { PriceBadge } from "@/components/listing/listing-badges";
+import { PhotoUploader } from "@/components/landlord/photo-uploader";
 
 const SELECT_CLS =
   "h-9 w-full rounded-lg border border-input bg-background px-2.5 text-sm text-foreground outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50";
@@ -32,7 +33,13 @@ const AMENITIES = [
   "24h security",
 ];
 
-export function ListingForm({ landlordVerified }: { landlordVerified: boolean }) {
+export function ListingForm({
+  landlordVerified,
+  userId,
+}: {
+  landlordVerified: boolean;
+  userId: string;
+}) {
   const [state, action, pending] = useActionState(createListingAction, undefined);
   const [area, setArea] = useState<AreaId | "">("");
   const [type, setType] = useState<PropertyType>("room");
@@ -80,6 +87,11 @@ export function ListingForm({ landlordVerified }: { landlordVerified: boolean })
             placeholder="Describe the room, the area, house rules, and what's included…"
           />
         </Field>
+
+        <div>
+          <Label className="mb-2 block">Photos</Label>
+          <PhotoUploader userId={userId} />
+        </div>
 
         <div className="grid grid-cols-2 gap-4">
           <Field label="Area" htmlFor="area" required>

@@ -33,12 +33,14 @@ function navFor(user: HeaderUser) {
       { href: "/browse", label: "Browse rooms" },
       { href: "/dashboard", label: "Dashboard" },
       { href: "/dashboard/tenancy", label: "Tenancy" },
+      { href: "/messages", label: "Messages" },
     ];
   return [
     { href: "/browse", label: "Browse rooms" },
-    { href: "/passport", label: "Trust Passport" },
+    { href: "/passport", label: "Passport" },
     { href: "/saved", label: "Saved" },
     { href: "/bills", label: "Bills" },
+    { href: "/messages", label: "Messages" },
   ];
 }
 
@@ -51,7 +53,7 @@ function initials(name: string) {
     .toUpperCase();
 }
 
-export function SiteHeader({ user = null }: { user?: HeaderUser }) {
+export function SiteHeader({ user = null, unread = 0 }: { user?: HeaderUser; unread?: number }) {
   const pathname = usePathname();
   const nav = navFor(user);
 
@@ -68,11 +70,16 @@ export function SiteHeader({ user = null }: { user?: HeaderUser }) {
               key={item.href}
               href={item.href}
               className={cn(
-                "rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
+                "relative rounded-md px-3 py-2 text-sm font-medium text-muted-foreground transition-colors hover:text-foreground",
                 pathname === item.href && "text-foreground",
               )}
             >
               {item.label}
+              {item.href === "/messages" && unread > 0 && (
+                <span className="ml-1 inline-flex min-w-4 items-center justify-center rounded-full bg-primary px-1 text-[10px] font-bold text-primary-foreground">
+                  {unread}
+                </span>
+              )}
             </Link>
           ))}
         </nav>
@@ -126,11 +133,16 @@ export function SiteHeader({ user = null }: { user?: HeaderUser }) {
                   render={
                     <Link
                       href={item.href}
-                      className="rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted"
+                      className="flex items-center gap-2 rounded-md px-3 py-2.5 text-base font-medium text-foreground hover:bg-muted"
                     />
                   }
                 >
                   {item.label}
+                  {item.href === "/messages" && unread > 0 && (
+                    <span className="inline-flex min-w-5 items-center justify-center rounded-full bg-primary px-1.5 text-xs font-bold text-primary-foreground">
+                      {unread}
+                    </span>
+                  )}
                 </SheetClose>
               ))}
             </div>

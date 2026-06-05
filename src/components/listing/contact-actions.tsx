@@ -1,9 +1,10 @@
 "use client";
 
 import { useActionState, useEffect, useState } from "react";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, MessageSquare } from "lucide-react";
 import { toast } from "sonner";
 import { applyAction } from "@/app/(app)/listing/actions";
+import { startConversationAction } from "@/app/(app)/messages/actions";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -21,12 +22,14 @@ import { cn } from "@/lib/utils";
 
 export function ContactActions({
   listingId,
+  landlordId,
   phone,
   title,
   landlordName,
   className,
 }: {
   listingId: string;
+  landlordId: string;
   phone: string;
   title: string;
   landlordName: string;
@@ -50,13 +53,24 @@ export function ContactActions({
   }, [state]);
 
   return (
-    <div className={cn("flex gap-2", className)}>
+    <div className={cn("flex flex-col gap-2", className)}>
+      <form action={startConversationAction}>
+        <input type="hidden" name="listingId" value={listingId} />
+        <input type="hidden" name="landlordId" value={landlordId} />
+        <input type="hidden" name="listingTitle" value={title} />
+        <Button type="submit" className="w-full">
+          <MessageSquare /> Message landlord
+        </Button>
+      </form>
+
+      <div className="flex gap-2">
       <Button
+        variant="outline"
         className="flex-1"
         nativeButton={false}
         render={<a href={waLink} target="_blank" rel="noopener noreferrer" />}
       >
-        <MessageCircle /> Chat on WhatsApp
+        <MessageCircle /> WhatsApp
       </Button>
 
       <Dialog open={open} onOpenChange={setOpen}>
@@ -99,6 +113,7 @@ export function ContactActions({
           </form>
         </DialogContent>
       </Dialog>
+      </div>
     </div>
   );
 }

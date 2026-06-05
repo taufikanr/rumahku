@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import { SearchX } from "lucide-react";
+import { LayoutGrid, MapPin, SearchX } from "lucide-react";
 import {
   AREA_BY_ID,
   PROPERTY_TYPE_LABEL,
@@ -16,7 +16,9 @@ import {
 } from "@/lib/data";
 import { ListingCard } from "@/components/listing/listing-card";
 import { ListingFilters as Filters } from "@/components/listing/listing-filters";
+import { ListingsMap } from "@/components/listing/listings-map";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 export const metadata = { title: "Browse rooms in Sabah" };
 
@@ -71,6 +73,28 @@ export default async function BrowsePage({
   const listings = await getListings({ filters, userHabits: tenant.habits });
   const areas = listAreasWithCounts();
 
+  const view = str(sp.view) === "map" ? "map" : "list";
+  // Toggle links that preserve the active filters.
+  const qs = (v: "list" | "map") => {
+    const params = new URLSearchParams();
+    for (const [k, val] of Object.entries(sp)) {
+      const s = str(val);
+      if (k !== "view" && s) params.set(k, s);
+    }
+    if (v === "map") params.set("view", "map");
+    const q = params.toString();
+    return q ? `/browse?${q}` : "/browse";
+  };
+  const mapListings = listings.map((l) => ({
+    id: l.id,
+    title: l.title,
+    areaName: AREA_BY_ID[l.areaId].name,
+    lat: l.lat,
+    lng: l.lng,
+    price: l.price,
+    scamLevel: l.scam.level,
+  }));
+
   return (
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
       <div className="mb-5">
@@ -86,12 +110,36 @@ export default async function BrowsePage({
         <Filters areas={areas} />
       </Suspense>
 
-      <p className="mt-5 mb-3 text-sm text-muted-foreground">
-        <span className="font-semibold text-foreground">{listings.length}</span>{" "}
-        {listings.length === 1 ? "home" : "homes"} found
-      </p>
+      <div className="mt-5 mb-3 flex items-center justify-between gap-3">
+        <p className="text-sm text-muted-foreground">
+          <span className="font-semibold text-foreground">{listings.length}</span>{" "}
+          {listings.length === 1 ? "home" : "homes"} found
+        </p>
+        <div className="inline-flex rounded-lg border border-border bg-card p-0.5 text-sm">
+          <Link
+            href={qs("list")}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium",
+              view === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <LayoutGrid className="size-4" /> List
+          </Link>
+          <Link
+            href={qs("map")}
+            className={cn(
+              "inline-flex items-center gap-1.5 rounded-md px-3 py-1.5 font-medium",
+              view === "map" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
+            )}
+          >
+            <MapPin className="size-4" /> Map
+          </Link>
+        </div>
+      </div>
 
-      {listings.length === 0 ? (
+      {view === "map" && listings.length > 0 ? (
+        <ListingsMap listings={mapListings} />
+      ) : listings.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16 text-center">
           <SearchX className="size-10 text-muted-foreground" />
           <h2 className="mt-4 font-heading text-lg font-bold">No homes match your filters</h2>
