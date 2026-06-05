@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { BadgeCheck, Check, CheckCircle2, Home, Inbox, Plus, ShieldCheck, Star, X } from "lucide-react";
+import { BadgeCheck, CalendarClock, Check, CheckCircle2, Home, Inbox, Plus, ShieldCheck, Star, X } from "lucide-react";
 import { AREA_BY_ID, PROPERTY_TYPE_LABEL } from "@/lib/constants";
 import { requireProfile } from "@/lib/auth";
 import { getLandlordApplications, type LandlordApplication } from "@/lib/applications";
 import { getLandlordListings, getDemoTenant } from "@/lib/data";
-import { getPassportFor } from "@/lib/passport";
+import { getPassportFor } from "@/lib/passport-data";
+import { getPendingViewingCount } from "@/lib/viewings";
 import { formatRM, relativeFromNow } from "@/lib/format";
 import { setApplicationStatusAction } from "@/app/(app)/dashboard/actions";
 import { createDepositAction } from "@/app/(app)/deposits/actions";
@@ -26,8 +27,9 @@ export default async function DashboardPage({
   const listings = await getLandlordListings(profile.id);
   const applications = await getLandlordApplications();
   const sp = await searchParams;
+  const pendingViewings = await getPendingViewingCount();
   // Demo applicant Trust Passport (DB-backed per-tenant in production).
-  const applicantPassport = getPassportFor(getDemoTenant());
+  const applicantPassport = await getPassportFor(getDemoTenant());
   const trust = {
     score: applicantPassport.score.value,
     rep: applicantPassport.reputation.avg,
@@ -42,6 +44,17 @@ export default async function DashboardPage({
         <div className="mb-5 flex items-center gap-2 rounded-xl bg-safe/10 p-3 text-sm font-medium text-safe">
           <CheckCircle2 className="size-4" /> Listing published! It&apos;s now live on RumahKu.
         </div>
+      )}
+
+      {pendingViewings > 0 && (
+        <Link
+          href="/viewings"
+          className="mb-5 flex items-center gap-2 rounded-xl border border-warn/40 bg-warn/10 p-3 text-sm font-medium text-warn transition-colors hover:bg-warn/15"
+        >
+          <CalendarClock className="size-4" />
+          {pendingViewings} viewing {pendingViewings === 1 ? "request" : "requests"} awaiting your response
+          <span className="ml-auto font-semibold">Review →</span>
+        </Link>
       )}
 
       <div className="flex flex-wrap items-end justify-between gap-3">

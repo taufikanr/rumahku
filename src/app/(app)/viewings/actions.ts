@@ -52,3 +52,14 @@ export async function setViewingStatusAction(formData: FormData) {
   await supabase.from("viewings").update({ status }).eq("id", id);
   revalidatePath("/viewings");
 }
+
+/** Tenant cancels their own viewing request. */
+export async function cancelViewingAction(formData: FormData) {
+  const profile = await requireProfile("tenant");
+  const id = String(formData.get("id") ?? "");
+  if (!id) return;
+  const supabase = await createClient();
+  // RLS limits this to the tenant's own viewings.
+  await supabase.from("viewings").update({ status: "cancelled" }).eq("id", id).eq("tenant_id", profile.id);
+  revalidatePath("/viewings");
+}

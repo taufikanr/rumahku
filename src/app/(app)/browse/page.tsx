@@ -20,6 +20,8 @@ import { ListingFilters as Filters } from "@/components/listing/listing-filters"
 import { ListingsMap } from "@/components/listing/listings-map";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 
 export const metadata = { title: "Browse rooms in Sabah" };
 
@@ -69,6 +71,7 @@ export default async function BrowsePage({
   searchParams: Promise<SearchParams>;
 }) {
   const sp = await searchParams;
+  const lang = await getLang();
   const filters = parseFilters(sp);
   const tenant = getDemoTenant();
   const listings = await getListings({ filters, userHabits: tenant.habits });
@@ -100,10 +103,10 @@ export default async function BrowsePage({
     <div className="mx-auto w-full max-w-6xl px-4 py-6 sm:px-6">
       <div className="mb-5">
         <h1 className="font-heading text-2xl font-bold tracking-tight sm:text-3xl">
-          Rooms &amp; homes in Kota Kinabalu
+          {t(lang, "browse.title")}
         </h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          Every listing is scam-checked and shows its distance to UMS. Browse with confidence.
+          {t(lang, "browse.subtitle")}
         </p>
       </div>
 
@@ -114,7 +117,7 @@ export default async function BrowsePage({
       <div className="mt-5 mb-3 flex items-center justify-between gap-3">
         <p className="text-sm text-muted-foreground">
           <span className="font-semibold text-foreground">{listings.length}</span>{" "}
-          {listings.length === 1 ? "home" : "homes"} found
+          {t(lang, listings.length === 1 ? "common.home" : "common.homes")} {t(lang, "browse.found")}
         </p>
         <div className="flex items-center gap-2">
         <form action={saveSearchAction}>
@@ -123,7 +126,7 @@ export default async function BrowsePage({
             type="submit"
             className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-3 py-1.5 text-sm font-medium text-muted-foreground hover:text-foreground"
           >
-            <Bell className="size-4" /> Save search
+            <Bell className="size-4" /> {t(lang, "browse.saveSearch")}
           </button>
         </form>
         <div className="inline-flex rounded-lg border border-border bg-card p-0.5 text-sm">
@@ -134,7 +137,7 @@ export default async function BrowsePage({
               view === "list" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <LayoutGrid className="size-4" /> List
+            <LayoutGrid className="size-4" /> {t(lang, "browse.list")}
           </Link>
           <Link
             href={qs("map")}
@@ -143,7 +146,7 @@ export default async function BrowsePage({
               view === "map" ? "bg-primary text-primary-foreground" : "text-muted-foreground hover:text-foreground",
             )}
           >
-            <MapPin className="size-4" /> Map
+            <MapPin className="size-4" /> {t(lang, "browse.map")}
           </Link>
         </div>
         </div>
@@ -154,12 +157,12 @@ export default async function BrowsePage({
       ) : listings.length === 0 ? (
         <div className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-border py-16 text-center">
           <SearchX className="size-10 text-muted-foreground" />
-          <h2 className="mt-4 font-heading text-lg font-bold">No homes match your filters</h2>
+          <h2 className="mt-4 font-heading text-lg font-bold">{t(lang, "browse.emptyTitle")}</h2>
           <p className="mt-1 max-w-sm text-sm text-muted-foreground">
-            Try widening your price range, distance, or clearing some filters.
+            {t(lang, "browse.emptyBody")}
           </p>
           <Button className="mt-4" render={<Link href="/browse" />} nativeButton={false}>
-            Clear all filters
+            {t(lang, "browse.clear")}
           </Button>
         </div>
       ) : (

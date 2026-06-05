@@ -2,7 +2,7 @@ import Link from "next/link";
 import { CalendarClock, Check, Home, X } from "lucide-react";
 import { requireProfile } from "@/lib/auth";
 import { getViewings, VIEWING_STATUS_LABEL, type ViewingStatus } from "@/lib/viewings";
-import { setViewingStatusAction } from "@/app/(app)/viewings/actions";
+import { setViewingStatusAction, cancelViewingAction } from "@/app/(app)/viewings/actions";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 
@@ -12,6 +12,7 @@ const STATUS_STYLE: Record<ViewingStatus, string> = {
   pending: "bg-warn/15 text-warn",
   confirmed: "bg-safe/10 text-safe",
   declined: "bg-danger/10 text-danger",
+  cancelled: "bg-muted text-muted-foreground",
 };
 
 /** Kota Kinabalu local date + time (UTC+8). */
@@ -104,6 +105,15 @@ export default async function ViewingsPage() {
                     </Button>
                   </form>
                 </div>
+              )}
+
+              {!isLandlord && v.status === "pending" && (
+                <form action={cancelViewingAction} className="mt-3">
+                  <input type="hidden" name="id" value={v.id} />
+                  <Button type="submit" size="sm" variant="outline">
+                    <X /> Cancel request
+                  </Button>
+                </form>
               )}
             </div>
           ))}

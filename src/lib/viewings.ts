@@ -1,6 +1,6 @@
 import { createClient } from "@/lib/supabase/server";
 
-export type ViewingStatus = "pending" | "confirmed" | "declined";
+export type ViewingStatus = "pending" | "confirmed" | "declined" | "cancelled";
 
 export interface Viewing {
   id: string;
@@ -18,6 +18,7 @@ export const VIEWING_STATUS_LABEL: Record<ViewingStatus, string> = {
   pending: "Awaiting confirmation",
   confirmed: "Confirmed",
   declined: "Declined",
+  cancelled: "Cancelled",
 };
 
 interface Row {
@@ -40,7 +41,7 @@ const SELECT =
   "landlord:profiles!viewings_landlord_id_fkey(full_name)";
 
 function asStatus(s: string): ViewingStatus {
-  return s === "confirmed" || s === "declined" ? s : "pending";
+  return s === "confirmed" || s === "declined" || s === "cancelled" ? s : "pending";
 }
 
 export async function getViewings(): Promise<Viewing[]> {

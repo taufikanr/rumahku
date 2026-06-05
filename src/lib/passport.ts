@@ -236,18 +236,60 @@ function buildPayments(count: number, amount: number): PaymentRecord[] {
   });
 }
 
-/** Showcase passport for the demo tenant (and any tenant, for the demo). */
-function demoPassport(profile: RenterPassport["profile"]): RenterPassport {
+/** Derive the payment summary (counts, streak, totals) from a payment list. */
+export function paymentSummaryOf(payments: PaymentRecord[]): PaymentSummary {
+  const sorted = [...payments].sort((a, b) => Date.parse(b.paidOn) - Date.parse(a.paidOn));
+  const onTimeCount = sorted.filter((p) => p.onTime).length;
+  const lateCount = sorted.length - onTimeCount;
+  let streak = 0;
+  for (const p of sorted) {
+    if (p.onTime) streak++;
+    else break;
+  }
+  const totalPaid = sorted.filter((p) => p.onTime).reduce((s, p) => s + p.amount, 0);
+  const onTimeRate = sorted.length ? Math.round((onTimeCount / sorted.length) * 100) : 0;
+  return { onTimeCount, lateCount, streak, totalPaid, onTimeRate };
+}
+
+/** Assemble a passport (pure) from a profile + its records — used for both real and demo data. */
+export function assemblePassport(
+  profile: RenterPassport["profile"],
+  payments: PaymentRecord[],
+  tenancies: TenancyRecord[],
+  reviews: TenantReview[],
+  verifications: Verification[],
+): RenterPassport {
+  const paymentSummary = paymentSummaryOf(payments);
+  const tenureMonths = tenancies.reduce((s, t) => s + t.months, 0);
+  const repAvg = reviews.length ? reviews.reduce((s, r) => s + r.rating, 0) / reviews.length : 0;
+  const score = computeRentScore({
+    onTimeCount: paymentSummary.onTimeCount,
+    lateCount: paymentSummary.lateCount,
+    streak: paymentSummary.streak,
+    tenureMonths,
+    verifiedCount: verifications.filter((v) => v.verified).length,
+    repAvg,
+    repCount: reviews.length,
+  });
+  return {
+    profile,
+    handle: handleFor(profile.fullName),
+    verifications,
+    payments: [...payments].sort((a, b) => Date.parse(b.paidOn) - Date.parse(a.paidOn)),
+    paymentSummary,
+    tenancies,
+    reviews,
+    reputation: { avg: Math.round(repAvg * 10) / 10, count: reviews.length },
+    score,
+    creditReported: false,
+  };
+}
+
+/** Showcase passport — the fallback shown when a user has no real records yet. */
+export function demoPassportFor(profile: Profile): RenterPassport {
   const RENT = 450;
   const ONTIME = 18;
   const payments = buildPayments(ONTIME, RENT);
-  const paymentSummary: PaymentSummary = {
-    onTimeCount: ONTIME,
-    lateCount: 0,
-    streak: ONTIME,
-    totalPaid: ONTIME * RENT,
-    onTimeRate: 100,
-  };
 
   const tenancies: TenancyRecord[] = [
     {
@@ -301,32 +343,24 @@ function demoPassport(profile: RenterPassport["profile"]): RenterPassport {
     { kind: "email", label: "Email address", verified: true },
   ];
 
-  const repAvg =
-    reviews.reduce((s, r) => s + r.rating, 0) / Math.max(1, reviews.length);
-  const tenureMonths = tenancies.reduce((s, t) => s + t.months, 0);
-  const verifiedCount = verifications.filter((v) => v.verified).length;
-
-  const score = computeRentScore({
-    onTimeCount: paymentSummary.onTimeCount,
-    lateCount: paymentSummary.lateCount,
-    streak: paymentSummary.streak,
-    tenureMonths,
-    verifiedCount,
-    repAvg,
-    repCount: reviews.length,
-  });
-
-  return {
-    profile,
-    handle: handleFor(profile.fullName),
-    verifications,
+  return assemblePassport(
+    profileSlice(profile),
     payments,
-    paymentSummary,
     tenancies,
     reviews,
-    reputation: { avg: Math.round(repAvg * 10) / 10, count: reviews.length },
-    score,
-    creditReported: false,
+    verifications,
+  );
+}
+
+export function profileSlice(profile: Profile): RenterPassport["profile"] {
+  return {
+    id: profile.id,
+    fullName: profile.fullName,
+    avatarUrl: profile.avatarUrl,
+    affiliation: profile.affiliation,
+    occupation: profile.occupation,
+    joinedAt: profile.joinedAt,
+    habits: profile.habits,
   };
 }
 
@@ -335,18 +369,14 @@ function handleFor(name: string): string {
   return parts.length > 1 ? `${parts[0]}-${parts[1][0]}` : (parts[0] ?? "renter");
 }
 
-/**
- * The Renter Trust Passport for a given profile.
- * Demo/seed-backed for the MVP; swap for DB-backed records in production.
- */
-export function getPassportFor(profile: Profile): RenterPassport {
-  return demoPassport({
-    id: profile.id,
-    fullName: profile.fullName,
-    avatarUrl: profile.avatarUrl,
-    affiliation: profile.affiliation,
-    occupation: profile.occupation,
-    joinedAt: profile.joinedAt,
-    habits: profile.habits,
-  });
+/** Default verification set derived from a profile (used when no explicit rows exist). */
+export function verificationsFor(profile: Profile): Verification[] {
+  const isUms = (profile.affiliation ?? "").toLowerCase().includes("malaysia sabah") ||
+    (profile.occupation ?? "").toLowerCase().includes("ums");
+  return [
+    { kind: "student", label: "UMS student", verified: isUms, detail: isUms ? "Verified via student email" : undefined },
+    { kind: "nric", label: "Identity (NRIC)", verified: profile.isVerified, detail: profile.isVerified ? "eKYC passed" : undefined },
+    { kind: "phone", label: "Phone number", verified: Boolean(profile.phone), detail: profile.phone ? "Mobile verified" : undefined },
+    { kind: "email", label: "Email address", verified: Boolean(profile.email) },
+  ];
 }

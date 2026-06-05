@@ -18,14 +18,16 @@ import { requireProfile } from "@/lib/auth";
 import { formatRM, formatDate } from "@/lib/format";
 import {
   BAND_LABEL,
-  getPassportFor,
   type RentScoreBand,
   type Verification,
   type VerificationKind,
 } from "@/lib/passport";
+import { getPassportFor } from "@/lib/passport-data";
 import { ScoreGauge } from "@/components/passport/score-gauge";
 import { SharePassportButton } from "@/components/passport/share-button";
 import { cn } from "@/lib/utils";
+import { t } from "@/lib/i18n";
+import { getLang } from "@/lib/i18n-server";
 
 export const metadata = { title: "Trust Passport" };
 
@@ -65,7 +67,8 @@ function Stars({ rating }: { rating: number }) {
 
 export default async function PassportPage() {
   const profile = await requireProfile();
-  const p = getPassportFor(profile);
+  const lang = await getLang();
+  const p = await getPassportFor(profile);
   const { score, paymentSummary: ps } = p;
   const next = nextMilestone(score.value);
   const verifiedCount = p.verifications.filter((v) => v.verified).length;
@@ -78,7 +81,7 @@ export default async function PassportPage() {
           <div className="flex items-center gap-2 text-primary">
             <ShieldCheck className="size-5" />
             <span className="text-sm font-semibold tracking-wide uppercase">
-              Renter Trust Passport
+              {t(lang, "passport.eyebrow")}
             </span>
           </div>
           <h1 className="mt-1 font-heading text-2xl font-bold tracking-tight sm:text-3xl">
@@ -108,7 +111,7 @@ export default async function PassportPage() {
         <div className="rounded-2xl border border-primary/30 bg-gradient-to-br from-primary/5 to-accent/30 p-6">
           <div className="flex items-center gap-2 text-primary">
             <CreditCard className="size-5" />
-            <h2 className="font-heading text-lg font-bold">Credit Builder</h2>
+            <h2 className="font-heading text-lg font-bold">{t(lang, "passport.creditBuilder")}</h2>
             <span className="ml-auto rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-semibold text-primary">
               {p.creditReported ? "Reporting to bureau" : "Ready to report"}
             </span>
@@ -136,7 +139,7 @@ export default async function PassportPage() {
       </div>
 
       {/* Score breakdown */}
-      <Section title="How your score is built" icon={TrendingUp}>
+      <Section title={t(lang, "passport.howBuilt")} icon={TrendingUp}>
         <div className="rounded-2xl border border-border/70 bg-card">
           {score.factors.map((f, i) => (
             <div
@@ -168,7 +171,7 @@ export default async function PassportPage() {
       </Section>
 
       {/* Payment history */}
-      <Section title="Verified payment history" icon={CheckCircle2}>
+      <Section title={t(lang, "passport.payments")} icon={CheckCircle2}>
         <div className="rounded-2xl border border-border/70 bg-card p-2">
           <div className="grid gap-1 sm:grid-cols-2">
             {p.payments.slice(0, 8).map((pay) => (
@@ -193,7 +196,7 @@ export default async function PassportPage() {
       </Section>
 
       {/* Rental history */}
-      <Section title="Rental history" icon={Home}>
+      <Section title={t(lang, "passport.rentalHistory")} icon={Home}>
         <div className="space-y-3">
           {p.tenancies.map((t) => (
             <div
@@ -225,7 +228,7 @@ export default async function PassportPage() {
 
       {/* Reputation — landlord reviews of the tenant */}
       <Section
-        title="What landlords say"
+        title={t(lang, "passport.reviews")}
         icon={Star}
         aside={
           p.reputation.count > 0 ? (
@@ -259,7 +262,7 @@ export default async function PassportPage() {
       </Section>
 
       {/* Verifications */}
-      <Section title={`Verified identity (${verifiedCount}/4)`} icon={BadgeCheck}>
+      <Section title={`${t(lang, "passport.identity")} (${verifiedCount}/4)`} icon={BadgeCheck}>
         <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
           {p.verifications.map((v) => (
             <VerificationChip key={v.kind} v={v} />
@@ -269,7 +272,7 @@ export default async function PassportPage() {
 
       {/* Bottom CTA */}
       <div className="mt-8 rounded-2xl border border-border/70 bg-muted/30 p-6 text-center">
-        <h3 className="font-heading text-lg font-bold">Your reputation goes with you</h3>
+        <h3 className="font-heading text-lg font-bold">{t(lang, "passport.bottomTitle")}</h3>
         <p className="mx-auto mt-1 max-w-xl text-sm text-muted-foreground">
           Share your Trust Passport with any landlord to skip the guesswork — a verified history
           of on-time payments and great reviews means you get the room, and a head start on your

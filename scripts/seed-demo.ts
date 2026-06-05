@@ -174,6 +174,45 @@ async function main() {
     );
   });
 
+  // 7) Real Trust Passport data — payments / tenancies / tenant reviews (needs 0005)
+  await section("Trust Passport data (0005)", async () => {
+    check((await db.from("payments").delete().eq("tenant_id", tenantId)).error, "clear payments");
+    check((await db.from("tenancies").delete().eq("tenant_id", tenantId)).error, "clear tenancies");
+    check((await db.from("tenant_reviews").delete().eq("tenant_id", tenantId)).error, "clear tenant_reviews");
+
+    const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+    const RENT = 450;
+    const payRows = Array.from({ length: 18 }, (_, i) => {
+      const d = new Date();
+      d.setMonth(d.getMonth() - i);
+      return {
+        tenant_id: tenantId,
+        listing_id: "l-001",
+        label: `${MONTHS[d.getMonth()]} ${d.getFullYear()} rent`,
+        amount: RENT,
+        paid_on: d.toISOString().slice(0, 10),
+        on_time: true,
+      };
+    });
+    check((await db.from("payments").insert(payRows)).error, "insert payments");
+
+    check(
+      (await db.from("tenancies").insert([
+        { tenant_id: tenantId, property: "Single room · University Apartment, Sepanggar", area: "Sepanggar (near UMS)", landlord_name: LANDLORD_NAME, landlord_verified: true, start_label: "Jan 2025", end_label: null, months: 18, on_time_rate: 100 },
+        { tenant_id: tenantId, property: "Shared apartment · Likas", area: "Likas", landlord_name: "Henry Wong", landlord_verified: true, start_label: "Jan 2024", end_label: "Dec 2024", months: 12, on_time_rate: 100 },
+      ])).error,
+      "insert tenancies",
+    );
+
+    check(
+      (await db.from("tenant_reviews").insert([
+        { tenant_id: tenantId, landlord_id: landlordId, landlord_name: LANDLORD_NAME, landlord_verified: true, rating: 5, comment: "Paid rent on time every single month and kept the room spotless. The kind of tenant every landlord wants — happy to be a reference.", created_at: days(-30) },
+        { tenant_id: tenantId, landlord_id: null, landlord_name: "Henry Wong", landlord_verified: true, rating: 5, comment: "Reliable and respectful, no payment issues at all over a full year. Returned the unit in great condition.", created_at: days(-200) },
+      ])).error,
+      "insert tenant_reviews",
+    );
+  });
+
   console.log("\n✅ Demo seed complete. Log in as the demo tenant/landlord to see every flow populated.");
 }
 

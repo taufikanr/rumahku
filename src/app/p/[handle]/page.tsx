@@ -10,7 +10,7 @@ import {
 } from "lucide-react";
 import { getDemoTenant } from "@/lib/data";
 import { formatRM, formatDate } from "@/lib/format";
-import { getPassportFor } from "@/lib/passport";
+import { getPassportFor } from "@/lib/passport-data";
 import { ScoreGauge } from "@/components/passport/score-gauge";
 import { Logo } from "@/components/logo";
 import { cn } from "@/lib/utils";
@@ -39,7 +39,7 @@ export default async function PublicPassportPage({
   params: Promise<{ handle: string }>;
 }) {
   await params; // handle reserved for real lookups; demo always shows the showcase renter
-  const p = getPassportFor(getDemoTenant());
+  const p = await getPassportFor(getDemoTenant());
   const { score, paymentSummary: ps } = p;
 
   return (
