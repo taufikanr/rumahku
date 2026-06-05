@@ -29,6 +29,8 @@ import {
 import { ScamPanelLive } from "@/components/listing/scam-panel-live";
 import { ContactActions } from "@/components/listing/contact-actions";
 import { SaveButton } from "@/components/listing/save-button";
+import { NeighbourhoodInsights } from "@/components/listing/neighbourhood-insights";
+import { ReviewForm } from "@/components/listing/review-form";
 
 const FURNISH = {
   unfurnished: "Unfurnished",
@@ -177,6 +179,9 @@ export default async function ListingPage({
             </section>
           )}
 
+          {/* Neighbourhood */}
+          <NeighbourhoodInsights areaId={listing.areaId} />
+
           {/* Housemates */}
           {listing.currentHousemates.length > 0 && (
             <section>
@@ -200,8 +205,8 @@ export default async function ListingPage({
           )}
 
           {/* Reviews */}
-          {listing.reviews.length > 0 && (
-            <section>
+          <section>
+            <div className="flex flex-wrap items-center justify-between gap-2">
               <h2 className="font-heading text-lg font-bold">
                 Reviews
                 {listing.rating != null && (
@@ -211,6 +216,9 @@ export default async function ListingPage({
                   </span>
                 )}
               </h2>
+              <ReviewForm listingId={listing.id} />
+            </div>
+            {listing.reviews.length > 0 ? (
               <div className="mt-3 space-y-3">
                 {listing.reviews.map((r) => (
                   <div key={r.id} className="rounded-xl border border-border p-4">
@@ -234,8 +242,12 @@ export default async function ListingPage({
                   </div>
                 ))}
               </div>
-            </section>
-          )}
+            ) : (
+              <p className="mt-3 text-sm text-muted-foreground">
+                No reviews yet — be the first to share your experience.
+              </p>
+            )}
+          </section>
         </div>
 
         {/* Sidebar */}

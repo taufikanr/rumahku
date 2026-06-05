@@ -33,3 +33,31 @@ export async function applyAction(
   revalidatePath("/dashboard");
   return { ok: true };
 }
+
+export type ReviewState = { ok?: boolean; error?: string } | undefined;
+
+export async function addReviewAction(
+  _prev: ReviewState,
+  formData: FormData,
+): Promise<ReviewState> {
+  const profile = await getCurrentProfile();
+  if (!profile) return { error: "Please log in to write a review." };
+
+  const listingId = String(formData.get("listingId") ?? "");
+  const rating = Number(formData.get("rating") ?? 0);
+  const comment = String(formData.get("comment") ?? "").trim();
+  if (!listingId || !comment) return { error: "Please add a short comment." };
+  if (!(rating >= 1 && rating <= 5)) return { error: "Please pick a star rating." };
+
+  const supabase = await createClient();
+  const { error } = await supabase.from("reviews").insert({
+    listing_id: listingId,
+    author_name: profile.fullName,
+    rating,
+    comment: comment.slice(0, 1000),
+  });
+  if (error) return { error: error.message };
+
+  revalidatePath(`/listing/${listingId}`);
+  return { ok: true };
+}

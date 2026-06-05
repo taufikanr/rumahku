@@ -3,6 +3,7 @@ import { Geist, Geist_Mono, Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { Toaster } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { PWARegistrar } from "@/components/pwa-registrar";
 
 const geistSans = Geist({
   variable: "--font-sans",
@@ -59,6 +60,7 @@ export default function RootLayout({
       <body className="min-h-full flex flex-col bg-background text-foreground">
         <TooltipProvider delay={200}>
           {children}
+          <PWARegistrar />
           <Toaster richColors position="top-center" />
         </TooltipProvider>
       </body>
