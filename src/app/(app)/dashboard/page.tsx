@@ -7,6 +7,7 @@ import { getLandlordListings, getDemoTenant } from "@/lib/data";
 import { getPassportFor } from "@/lib/passport";
 import { formatRM, relativeFromNow } from "@/lib/format";
 import { setApplicationStatusAction } from "@/app/(app)/dashboard/actions";
+import { createDepositAction } from "@/app/(app)/deposits/actions";
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ListingImage } from "@/components/listing/listing-image";
@@ -214,6 +215,14 @@ function ApplicationRow({
             </Button>
           </form>
         </div>
+      )}
+      {app.status === "accepted" && (
+        <form action={createDepositAction} className="mt-3">
+          <input type="hidden" name="applicationId" value={app.id} />
+          <Button type="submit" size="sm" variant="outline">
+            <ShieldCheck /> Start SafeDeposit
+          </Button>
+        </form>
       )}
     </div>
   );

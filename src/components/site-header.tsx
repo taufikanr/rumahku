@@ -30,16 +30,18 @@ function navFor(user: HeaderUser) {
   if (!user) return GUEST_NAV;
   if (user.role === "landlord")
     return [
-      { href: "/browse", label: "Browse rooms" },
+      { href: "/browse", label: "Browse" },
       { href: "/dashboard", label: "Dashboard" },
       { href: "/dashboard/tenancy", label: "Tenancy" },
+      { href: "/deposits", label: "Deposits" },
       { href: "/messages", label: "Messages" },
     ];
   return [
-    { href: "/browse", label: "Browse rooms" },
+    { href: "/browse", label: "Browse" },
     { href: "/passport", label: "Passport" },
     { href: "/saved", label: "Saved" },
     { href: "/bills", label: "Bills" },
+    { href: "/deposits", label: "Deposits" },
     { href: "/messages", label: "Messages" },
   ];
 }
