@@ -44,25 +44,26 @@ function navFor(user: HeaderUser): { primary: NavItem[]; secondary: NavItem[] } 
       primary: [
         { href: "/browse", key: "nav.browse" },
         { href: "/dashboard", key: "nav.dashboard" },
-        { href: "/deposits", key: "nav.deposits" },
+        { href: "/dashboard/new", key: "nav.addListing" },
         { href: "/messages", key: "nav.messages" },
+        { href: "/deposits", key: "nav.deposits" },
+        { href: "/scam-shield", key: "nav.scamShield" },
       ],
       secondary: [
         { href: "/dashboard/tenancy", key: "nav.tenancy" },
         { href: "/viewings", key: "nav.viewingRequests" },
-        { href: "/scam-shield", key: "nav.scamShield" },
       ],
     };
   return {
     primary: [
       { href: "/browse", key: "nav.browse" },
+      { href: "/scam-shield", key: "nav.scamShield" },
       { href: "/passport", key: "nav.passport" },
-      { href: "/deposits", key: "nav.deposits" },
+      { href: "/saved", key: "nav.savedListings" },
       { href: "/messages", key: "nav.messages" },
+      { href: "/deposits", key: "nav.deposits" },
     ],
     secondary: [
-      { href: "/scam-shield", key: "nav.scamShield" },
-      { href: "/saved", key: "nav.savedListings" },
       { href: "/alerts", key: "nav.savedSearches" },
       { href: "/viewings", key: "nav.myViewings" },
       { href: "/bills", key: "nav.bills" },
@@ -107,7 +108,7 @@ export function SiteHeader({
           <Logo />
         </Link>
 
-        <nav className="hidden items-center gap-1 md:flex">
+        <nav className="hidden items-center gap-1 lg:flex">
           {primary.map((item) => (
             <Link
               key={item.href}
@@ -123,7 +124,7 @@ export function SiteHeader({
           ))}
         </nav>
 
-        <div className="hidden items-center gap-2 md:flex">
+        <div className="hidden items-center gap-2 lg:flex">
           <LanguageSwitcher lang={lang} />
           {user ? (
             <>
@@ -171,7 +172,7 @@ export function SiteHeader({
         <Sheet>
           <SheetTrigger
             render={
-              <Button variant="outline" size="icon" className="md:hidden" aria-label="Open menu" />
+              <Button variant="outline" size="icon" className="lg:hidden" aria-label="Open menu" />
             }
           >
             <Menu />
