@@ -119,6 +119,50 @@ export interface Listing {
   createdAt: string;
 }
 
+/* ------------------------------------------------------------------ */
+/* Verified Real — Proof-of-Property                                   */
+/* ------------------------------------------------------------------ */
+export type PropertyVerifyStatus = "verified" | "unverified" | "flagged";
+
+export interface VerificationCheck {
+  key: string;
+  label: string;
+  pass: boolean;
+  detail: string;
+}
+
+export interface PhotoCheck {
+  photoId: string;
+  original: boolean;
+  /** When not original — where the image was previously seen. */
+  matchNote?: string;
+}
+
+/** Evidence from a landlord's on-site live capture. */
+export interface CaptureProof {
+  /** One-time code shown on-screen during the capture, proving it's live. */
+  code: string;
+  lat: number;
+  lng: number;
+  /** Metres between the capture GPS and the listing's map pin. */
+  distanceM: number;
+  capturedAt: string;
+  device: string;
+}
+
+export interface PropertyVerification {
+  status: PropertyVerifyStatus;
+  /** 0–100 transparent authenticity score. */
+  authenticity: number;
+  /** Shareable certificate id, e.g. RK-VR-L-001. */
+  certificateId: string;
+  checks: VerificationCheck[];
+  photoChecks: PhotoCheck[];
+  capture?: CaptureProof;
+  verifiedAt?: string;
+  flagReason?: string;
+}
+
 /** Listing enriched with values computed for the viewing context. */
 export interface EnrichedListing extends Listing {
   distanceKm: number;
@@ -126,6 +170,8 @@ export interface EnrichedListing extends Listing {
   price_fairness: PriceFairness;
   /** 0–100 compatibility with the current user's habits, when available. */
   housemateMatch?: number;
+  /** Proof-of-Property verification (always computed; never null). */
+  verification: PropertyVerification;
 }
 
 export type BillType = "rent" | "electricity" | "water" | "internet" | "other";

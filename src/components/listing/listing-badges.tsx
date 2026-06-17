@@ -126,3 +126,30 @@ export function MatchBadge({
     </span>
   );
 }
+
+/**
+ * Verified Real — the property is proven to physically exist (on-site capture),
+ * distinct from VerifiedBadge which only covers the landlord's identity.
+ */
+export function VerifiedRealBadge({
+  solid = false,
+  label = "Verified Real",
+  className,
+}: {
+  solid?: boolean;
+  label?: string;
+  className?: string;
+}) {
+  return (
+    <span
+      className={cn(
+        chip,
+        solid ? "bg-brand-teal text-white" : "bg-brand-teal/10 text-brand-teal",
+        className,
+      )}
+    >
+      <ShieldCheck />
+      {label}
+    </span>
+  );
+}

@@ -9,6 +9,7 @@ import {
   PriceBadge,
   ScamBadge,
   VerifiedBadge,
+  VerifiedRealBadge,
 } from "@/components/listing/listing-badges";
 import { SaveButton } from "@/components/listing/save-button";
 
@@ -30,7 +31,8 @@ export function ListingCard({ listing }: { listing: EnrichedListing }) {
           type={listing.propertyType}
           className="h-44 w-full"
         />
-        <div className="pointer-events-none absolute top-2 left-2 z-10 flex gap-1.5">
+        <div className="pointer-events-none absolute top-2 left-2 z-10 flex flex-col items-start gap-1">
+          {listing.verification.status === "verified" && <VerifiedRealBadge solid />}
           {listing.isVerified && <VerifiedBadge solid />}
         </div>
         <div className="absolute top-2 right-2 z-20 flex items-center gap-1.5">

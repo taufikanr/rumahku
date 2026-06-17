@@ -16,6 +16,7 @@ import {
   fetchLandlordListings,
   fetchListing,
 } from "@/lib/data-db";
+import { getListingVerification } from "@/lib/verification";
 import type {
   EnrichedListing,
   GenderPreference,
@@ -94,6 +95,7 @@ export function enrich(listing: Listing, ctx: EnrichContext = {}): EnrichedListi
     housemateMatch: ctx.userHabits
       ? computeHousemateMatch(ctx.userHabits, listing.currentHousemates)
       : undefined,
+    verification: getListingVerification(listing),
   };
 }
 
@@ -167,6 +169,7 @@ function sortListings(list: EnrichedListing[], sort: SortKey): EnrichedListing[]
 function recommendScore(l: EnrichedListing): number {
   let s = 0;
   if (l.isVerified) s += 30;
+  if (l.verification.status === "verified") s += 14;
   s += (2 - SCAM_RANK[l.scam.level]) * 20; // safe best
   if (l.price_fairness.verdict === "below") s += 12;
   else if (l.price_fairness.verdict === "fair") s += 6;

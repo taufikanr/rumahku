@@ -26,8 +26,10 @@ import {
   PriceBadge,
   ScamBadge,
   VerifiedBadge,
+  VerifiedRealBadge,
 } from "@/components/listing/listing-badges";
 import { ScamPanelLive } from "@/components/listing/scam-panel-live";
+import { VerifiedRealPanel } from "@/components/listing/verified-real-panel";
 import { ContactActions } from "@/components/listing/contact-actions";
 import { SaveButton } from "@/components/listing/save-button";
 import { NeighbourhoodInsights } from "@/components/listing/neighbourhood-insights";
@@ -132,6 +134,7 @@ export default async function ListingPage({
             {listing.driveMins} min)
           </p>
           <div className="mt-3 flex flex-wrap items-center gap-2">
+            {listing.verification.status === "verified" && <VerifiedRealBadge />}
             {listing.isVerified && <VerifiedBadge />}
             <ScamBadge level={listing.scam.level} />
             <PriceBadge fairness={listing.price_fairness} />
@@ -328,6 +331,9 @@ export default async function ListingPage({
               </p>
             )}
           </div>
+
+          {/* Proof of Property — Verified Real */}
+          <VerifiedRealPanel listing={listing} />
 
           {/* Safety check */}
           <ScamPanelLive listingId={listing.id} initial={listing.scam} />

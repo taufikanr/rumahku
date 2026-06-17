@@ -4,6 +4,7 @@ import { AREA_BY_ID, PROPERTY_TYPE_LABEL } from "@/lib/constants";
 import { requireProfile } from "@/lib/auth";
 import { getLandlordApplications, type LandlordApplication } from "@/lib/applications";
 import { getLandlordListings, getDemoTenant } from "@/lib/data";
+import { getListingVerification } from "@/lib/verification";
 import { getPassportFor } from "@/lib/passport-data";
 import { getPendingViewingCount } from "@/lib/viewings";
 import { formatRM, relativeFromNow } from "@/lib/format";
@@ -12,7 +13,7 @@ import { createDepositAction } from "@/app/(app)/deposits/actions";
 import { Button } from "@/components/ui/button";
 import { ButtonLink } from "@/components/ui/button-link";
 import { ListingImage } from "@/components/listing/listing-image";
-import { ScamBadge } from "@/components/listing/listing-badges";
+import { ScamBadge, VerifiedRealBadge } from "@/components/listing/listing-badges";
 import { DeleteListingButton } from "@/components/landlord/delete-listing-button";
 import { cn } from "@/lib/utils";
 
@@ -119,6 +120,7 @@ export default async function DashboardPage({
         <div className="grid gap-3 sm:grid-cols-2">
           {listings.map((l) => {
             const area = AREA_BY_ID[l.areaId];
+            const v = getListingVerification(l);
             return (
               <div key={l.id} className="flex gap-3 rounded-xl border border-border p-3">
                 <ListingImage
@@ -137,11 +139,21 @@ export default async function DashboardPage({
                   </p>
                   <div className="mt-2 flex items-center gap-2">
                     <ScamBadge level={l.scam.level} />
+                    {v.status === "verified" ? (
+                      <VerifiedRealBadge />
+                    ) : (
+                      <Link
+                        href={`/dashboard/verify/${l.id}`}
+                        className="inline-flex items-center gap-1 text-xs font-semibold text-brand-teal hover:underline"
+                      >
+                        <ShieldCheck className="size-3.5" /> Verify Real
+                      </Link>
+                    )}
                     <Link
                       href={`/listing/${l.id}`}
                       className="ml-auto text-xs font-medium text-primary hover:underline"
                     >
-                      View listing →
+                      View →
                     </Link>
                   </div>
                 </div>
