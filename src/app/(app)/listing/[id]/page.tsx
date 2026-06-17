@@ -90,12 +90,12 @@ export default async function ListingPage({
       </Link>
 
       {/* Gallery */}
-      <div className="mt-3 grid gap-2 sm:h-80 sm:grid-cols-4 sm:grid-rows-2">
+      <div className="mt-3 grid gap-2 sm:h-96 sm:grid-cols-4 sm:grid-rows-2">
         <ListingImage
           seed={photos[0]}
           type={listing.propertyType}
-          className="h-56 rounded-2xl sm:col-span-2 sm:row-span-2 sm:h-full"
-          iconClassName="size-14"
+          className="h-64 rounded-2xl sm:col-span-2 sm:row-span-2 sm:h-full"
+          iconClassName="size-16"
         />
         {photos.slice(1, 5).map((p) => (
           <ListingImage
