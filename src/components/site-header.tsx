@@ -32,6 +32,7 @@ type NavItem = { href: string; key: string };
 
 const GUEST_NAV: NavItem[] = [
   { href: "/browse", key: "nav.browseRooms" },
+  { href: "/scam-shield", key: "nav.scamShield" },
   { href: "/#how-it-works", key: "nav.howItWorks" },
   { href: "/#for-landlords", key: "nav.forLandlords" },
 ];
@@ -49,6 +50,7 @@ function navFor(user: HeaderUser): { primary: NavItem[]; secondary: NavItem[] } 
       secondary: [
         { href: "/dashboard/tenancy", key: "nav.tenancy" },
         { href: "/viewings", key: "nav.viewingRequests" },
+        { href: "/scam-shield", key: "nav.scamShield" },
       ],
     };
   return {
@@ -59,6 +61,7 @@ function navFor(user: HeaderUser): { primary: NavItem[]; secondary: NavItem[] } 
       { href: "/messages", key: "nav.messages" },
     ],
     secondary: [
+      { href: "/scam-shield", key: "nav.scamShield" },
       { href: "/saved", key: "nav.savedListings" },
       { href: "/alerts", key: "nav.savedSearches" },
       { href: "/viewings", key: "nav.myViewings" },

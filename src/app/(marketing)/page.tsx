@@ -1,13 +1,16 @@
+import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
   MapPin,
   Scale,
   Search,
+  ShieldAlert,
   ShieldCheck,
   Sparkles,
   Star,
   TrendingDown,
+  X,
 } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button-link";
 import { FeatureOrbital } from "@/components/feature-orbital";
@@ -48,6 +51,13 @@ export default async function LandingPage() {
                 {t(lang, "hero.listCta")} <ArrowRight />
               </ButtonLink>
             </div>
+            <Link
+              href="/scam-shield"
+              className="mt-4 inline-flex items-center gap-1.5 text-sm font-medium text-brand-teal hover:underline"
+            >
+              <Sparkles className="size-4" /> Already found a room elsewhere? Check it with Scam
+              Shield →
+            </Link>
             <div className="mt-7 flex flex-wrap items-center gap-x-5 gap-y-2 text-sm text-muted-foreground">
               <span className="inline-flex items-center gap-1.5">
                 <BadgeCheck className="size-4 text-primary" /> {t(lang, "hero.verifiedLandlords")}
@@ -110,6 +120,63 @@ export default async function LandingPage() {
           <Stat value={`${RESEARCH.housemateProblemPct}%`} label="had housemate problems" />
           <Stat value={`${RESEARCH.interestedPct}%`} label="want a Sabah-only app" />
           <Stat value={`${RESEARCH.surveyN + RESEARCH.interviewN}+`} label="Sabah renters researched" />
+        </div>
+      </section>
+
+      {/* Scam Shield showcase */}
+      <section className="border-b border-border/70 bg-gradient-to-br from-brand-teal/10 via-background to-background">
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2">
+          <div>
+            <span className="inline-flex items-center gap-2 rounded-full border border-brand-teal/30 bg-brand-teal/10 px-3 py-1 text-xs font-semibold text-brand-teal">
+              <Sparkles className="size-3.5" /> New · AI Scam Shield
+            </span>
+            <h2 className="mt-5 font-heading text-3xl font-bold tracking-tight sm:text-4xl">
+              Found a room on Facebook? Check it{" "}
+              <span className="text-brand-teal">before you pay.</span>
+            </h2>
+            <p className="mt-3 max-w-md text-muted-foreground">
+              You don&apos;t have to leave where you already search. Paste any listing or WhatsApp
+              message and our AI flags the scam signals in seconds — then tells you exactly what to
+              do next. Free, no account needed.
+            </p>
+            <ButtonLink href="/scam-shield" size="lg" className="mt-6 h-12 px-6 text-base">
+              <Sparkles /> Try Scam Shield free
+            </ButtonLink>
+          </div>
+
+          {/* Mock verdict */}
+          <div className="relative mx-auto w-full max-w-sm">
+            <div className="absolute -inset-4 -z-10 rounded-[2rem] bg-gradient-to-tr from-danger/10 to-brand-teal/15 blur-2xl" />
+            <div className="overflow-hidden rounded-3xl border border-border bg-card p-5 shadow-xl">
+              <p className="rounded-lg bg-muted/60 p-3 text-xs text-muted-foreground italic">
+                &ldquo;Luxury condo near UMS, only RM350! I&apos;m overseas so no viewing — transfer
+                deposit dulu to lock it, many people want. Bank in today.&rdquo;
+              </p>
+              <div className="mt-4 flex items-center gap-3">
+                <div className="flex size-12 items-center justify-center rounded-full bg-danger/10 text-danger">
+                  <ShieldAlert className="size-6" />
+                </div>
+                <div>
+                  <p className="font-heading text-lg font-extrabold text-danger">Likely a scam</p>
+                  <p className="text-xs text-muted-foreground">Scam risk 92/100</p>
+                </div>
+              </div>
+              <ul className="mt-3 space-y-1.5 text-sm">
+                <li className="flex items-start gap-2">
+                  <X className="mt-0.5 size-4 shrink-0 text-danger" /> Price far below market — too
+                  good to be true
+                </li>
+                <li className="flex items-start gap-2">
+                  <X className="mt-0.5 size-4 shrink-0 text-danger" /> Refuses viewing &amp; claims to
+                  be overseas
+                </li>
+                <li className="flex items-start gap-2">
+                  <X className="mt-0.5 size-4 shrink-0 text-danger" /> Pushes a deposit before
+                  viewing
+                </li>
+              </ul>
+            </div>
+          </div>
         </div>
       </section>
 
