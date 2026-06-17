@@ -2,6 +2,7 @@ import Link from "next/link";
 import {
   ArrowRight,
   BadgeCheck,
+  Gauge,
   MapPin,
   Scale,
   Search,
@@ -13,7 +14,6 @@ import {
   X,
 } from "lucide-react";
 import { ButtonLink } from "@/components/ui/button-link";
-import { FeatureOrbital } from "@/components/feature-orbital";
 import { RESEARCH } from "@/lib/constants";
 import { t } from "@/lib/i18n";
 import { getLang } from "@/lib/i18n-server";
@@ -26,12 +26,13 @@ export default async function LandingPage() {
       <section className="relative overflow-hidden">
         <div className="pointer-events-none absolute inset-0 -z-10 bg-gradient-to-b from-accent/60 via-background to-background" />
         <div className="pointer-events-none absolute -top-24 -right-24 -z-10 size-96 rounded-full bg-primary/10 blur-3xl" />
-        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:py-20">
+        <div className="pointer-events-none absolute -bottom-32 -left-24 -z-10 size-96 rounded-full bg-brand-teal/10 blur-3xl" />
+        <div className="mx-auto grid w-full max-w-6xl items-center gap-10 px-4 py-16 sm:px-6 lg:grid-cols-2 lg:py-24">
           <div>
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-3 py-1 text-xs font-medium text-primary">
               <Sparkles className="size-3.5" /> {t(lang, "hero.badge")}
             </span>
-            <h1 className="mt-5 font-heading text-4xl font-extrabold leading-[1.05] tracking-tight sm:text-5xl lg:text-6xl">
+            <h1 className="mt-5 font-heading text-4xl font-extrabold leading-[1.02] tracking-tight sm:text-5xl lg:text-7xl">
               {t(lang, "hero.title")}{" "}
               <span className="text-primary">{t(lang, "hero.titleAccent")}</span>
             </h1>
@@ -82,6 +83,9 @@ export default async function LandingPage() {
                 </span>
                 <span className="absolute top-3 right-3 inline-flex items-center gap-1 rounded-full bg-background/90 px-2.5 py-1 text-xs font-semibold text-primary shadow">
                   <BadgeCheck className="size-3.5" /> Verified
+                </span>
+                <span className="absolute bottom-3 left-3 inline-flex items-center gap-1 rounded-full bg-brand-teal px-2.5 py-1 text-xs font-semibold text-white shadow">
+                  <ShieldCheck className="size-3.5" /> Verified Real
                 </span>
               </div>
               <div className="space-y-3 p-5">
@@ -180,19 +184,51 @@ export default async function LandingPage() {
         </div>
       </section>
 
-      {/* Features — interactive orbital */}
+      {/* The RumahKu difference — trust, proven */}
       <section className="relative overflow-hidden bg-neutral-950 text-white">
-        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_0%,rgba(45,212,191,0.14),transparent_60%)]" />
-        <div className="relative mx-auto w-full max-w-3xl px-4 pt-16 text-center sm:px-6">
-          <h2 className="font-heading text-3xl font-bold tracking-tight sm:text-4xl">
-            Everything Facebook groups and Mudah can&apos;t give you
-          </h2>
-          <p className="mt-3 text-white/70">
-            Tap a feature to see how it works. Every one was directly requested by the
-            Sabah renters and landlords we interviewed.
-          </p>
+        <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_-10%,rgba(47,86,217,0.18),transparent_55%)]" />
+        <div className="pointer-events-none absolute -bottom-24 right-0 size-96 rounded-full bg-brand-teal/10 blur-3xl" />
+        <div className="relative mx-auto w-full max-w-6xl px-4 py-20 sm:px-6">
+          <div className="mx-auto max-w-2xl text-center">
+            <span className="inline-flex items-center gap-2 rounded-full border border-white/15 bg-white/5 px-3 py-1 text-xs font-medium">
+              <Sparkles className="size-3.5 text-brand-teal" /> The RumahKu difference
+            </span>
+            <h2 className="mt-5 font-heading text-3xl font-extrabold tracking-tight sm:text-5xl">
+              Trust, proven — <span className="text-brand-teal">not promised.</span>
+            </h2>
+            <p className="mt-4 text-white/70">
+              Everything Facebook groups and Mudah can&apos;t give you — verified rooms, verified
+              people, and protected money, all in one place.
+            </p>
+          </div>
+
+          <div className="mt-12 grid gap-5 md:grid-cols-3">
+            <TrustCard
+              icon={<ShieldCheck />}
+              tone="bg-brand-teal/10 text-brand-teal ring-brand-teal/20"
+              title="Verified Real"
+              body="Landlords prove a unit physically exists with a GPS-stamped, live on-site capture — so a stolen-photo 'ghost listing' can't pass."
+              href="/browse"
+              cta="See verified rooms"
+            />
+            <TrustCard
+              icon={<Gauge />}
+              tone="bg-[#2f56d9]/20 text-[#7da2ff] ring-[#2f56d9]/30"
+              title="Renter Trust Passport"
+              body="On-time rent builds a transparent 300–850 Rent Score, turning years of reliable payments into real credit — a Malaysian first."
+              href="/passport"
+              cta="View the passport"
+            />
+            <TrustCard
+              icon={<Sparkles />}
+              tone="bg-premium/10 text-premium ring-premium/20"
+              title="AI Scam Shield"
+              body="Paste any Facebook or WhatsApp listing and our AI flags the scam signals in seconds — then tells you exactly what to do next."
+              href="/scam-shield"
+              cta="Try Scam Shield"
+            />
+          </div>
         </div>
-        <FeatureOrbital />
       </section>
 
       {/* How it works */}
@@ -261,6 +297,40 @@ export default async function LandingPage() {
         </div>
       </section>
     </>
+  );
+}
+
+function TrustCard({
+  icon,
+  tone,
+  title,
+  body,
+  href,
+  cta,
+}: {
+  icon: React.ReactNode;
+  tone: string;
+  title: string;
+  body: string;
+  href: string;
+  cta: string;
+}) {
+  return (
+    <div className="group flex flex-col rounded-2xl border border-white/10 bg-white/[0.03] p-6 transition-colors hover:bg-white/[0.06]">
+      <span
+        className={`flex size-12 items-center justify-center rounded-xl ring-1 [&>svg]:size-6 ${tone}`}
+      >
+        {icon}
+      </span>
+      <h3 className="mt-4 font-heading text-xl font-bold">{title}</h3>
+      <p className="mt-2 flex-1 text-sm leading-relaxed text-white/65">{body}</p>
+      <Link
+        href={href}
+        className="mt-4 inline-flex items-center gap-1.5 text-sm font-semibold text-white transition-all hover:gap-2.5"
+      >
+        {cta} <ArrowRight className="size-4" />
+      </Link>
+    </div>
   );
 }
 
