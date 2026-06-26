@@ -1,6 +1,7 @@
 import type { AreaId, PropertyType } from "@/lib/constants";
 import { computePriceFairness } from "@/lib/pricing";
 import { computeScamRisk } from "@/lib/scam";
+import { displayPhotos, WALKTHROUGH_VIDEO } from "@/lib/media";
 import { createClient } from "@/lib/supabase/server";
 import type {
   FurnishLevel,
@@ -66,12 +67,13 @@ function buildFromRow(row: ListingRow): Listing {
   const ll = row.landlord;
   const areaId = row.area_id as AreaId;
   const propertyType = row.property_type as PropertyType;
+  const photos = displayPhotos(row.id, row.photos);
   const fairness = computePriceFairness(row.price, areaId, propertyType);
   const scam = computeScamRisk({
     price: row.price,
     expectedPrice: fairness.areaAvg,
     isVerifiedLandlord: ll?.is_verified ?? false,
-    photoCount: (row.photos ?? []).length,
+    photoCount: photos.length,
     description: row.description,
     depositMonths: row.price > 0 ? row.deposit / row.price : 2,
     landlordAgeDays: ll?.created_at ? daysSince(ll.created_at) : 365,
@@ -115,8 +117,8 @@ function buildFromRow(row: ListingRow): Listing {
     sizeSqft: row.size_sqft ?? undefined,
     furnished: row.furnished as FurnishLevel,
     genderPreference: row.gender_preference as GenderPreference,
-    photos: row.photos ?? [],
-    walkthroughUrl: row.walkthrough_url ?? undefined,
+    photos,
+    walkthroughUrl: WALKTHROUGH_VIDEO,
     amenities: row.amenities ?? [],
     availableFrom: row.available_from ?? row.created_at,
     currentHousemates: row.current_housemates ?? [],

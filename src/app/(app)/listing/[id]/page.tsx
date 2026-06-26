@@ -19,6 +19,7 @@ import { getDemoTenant, getListingById } from "@/lib/data";
 import { distanceLabel, formatDate, formatRM, relativeFromNow } from "@/lib/format";
 import { describeHabits, matchLabel } from "@/lib/match";
 import { priceVerdictLabel } from "@/lib/pricing";
+import { WALKTHROUGH_POSTER } from "@/lib/media";
 import type { Housemate } from "@/lib/types";
 import { ListingImage } from "@/components/listing/listing-image";
 import {
@@ -115,6 +116,7 @@ export default async function ListingPage({
           </div>
           <video
             src={listing.walkthroughUrl}
+            poster={WALKTHROUGH_POSTER}
             controls
             preload="metadata"
             className="aspect-video w-full rounded-2xl border border-border bg-black"

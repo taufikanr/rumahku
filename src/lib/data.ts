@@ -16,6 +16,7 @@ import {
   fetchLandlordListings,
   fetchListing,
 } from "@/lib/data-db";
+import { displayPhotos, WALKTHROUGH_VIDEO } from "@/lib/media";
 import { getListingVerification } from "@/lib/verification";
 import type {
   EnrichedListing,
@@ -31,12 +32,13 @@ import type {
 /* ------------------------------------------------------------------ */
 function buildListing(raw: RawListing): Listing {
   const landlord = LANDLORD_BY_ID[raw.landlordId];
+  const photos = displayPhotos(raw.id, raw.photos);
   const fairness = computePriceFairness(raw.price, raw.areaId, raw.propertyType);
   const scam = computeScamRisk({
     price: raw.price,
     expectedPrice: fairness.areaAvg,
     isVerifiedLandlord: landlord?.isVerified ?? false,
-    photoCount: raw.photos.length,
+    photoCount: photos.length,
     description: raw.description,
     depositMonths: raw.price > 0 ? raw.deposit / raw.price : 2,
     landlordAgeDays: landlordAgeDays(raw.landlordId),
@@ -51,6 +53,8 @@ function buildListing(raw: RawListing): Listing {
 
   return {
     ...raw,
+    photos,
+    walkthroughUrl: WALKTHROUGH_VIDEO,
     landlord: {
       id: landlord.id,
       fullName: landlord.fullName,
