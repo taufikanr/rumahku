@@ -29,8 +29,8 @@ const STYLE: Record<
 const EXAMPLES: { label: string; text: string; price?: number; area?: string }[] = [
   {
     label: "Try a suspicious one",
-    text: "Hi! This luxury fully-furnished condo near UMS is going for only RM350/month. I'm currently working overseas so I cannot do viewing. Please transfer the deposit dulu to lock the unit — many people are interested, today only. Bank in now and I'll courier the keys to you.",
-    price: 350,
+    text: "Hi! This luxury fully-furnished condo near UMS is going for only RM230/month. I'm currently working overseas so I cannot do viewing. Please transfer the deposit dulu to lock the unit — many people are interested, today only. Bank in now and I'll courier the keys to you.",
+    price: 230,
     area: "Sepanggar",
   },
   {
@@ -208,6 +208,10 @@ function Result({ result }: { result: ShieldResult }) {
         <div>
           <p className={cn("font-heading text-xl font-extrabold", s.text)}>{result.verdict}</p>
           <p className="text-sm text-muted-foreground">{result.summary}</p>
+          <p className="mt-0.5 text-[11px] text-muted-foreground">
+            {result.aiUsed ? "AI language analysis" : "Rule-based analysis"}
+            {result.priceCheck ? " + market-price check" : ""}
+          </p>
         </div>
       </div>
 
@@ -220,6 +224,34 @@ function Result({ result }: { result: ShieldResult }) {
           <div className={cn("h-full rounded-full transition-all", s.bar)} style={{ width: `${Math.max(4, result.score)}%` }} />
         </div>
       </div>
+
+      {result.priceCheck && (
+        <div className="mt-4 rounded-xl border border-border p-3">
+          <div className="flex items-center justify-between">
+            <p className="text-xs font-semibold tracking-wide text-muted-foreground uppercase">Market price check</p>
+            <span
+              className={cn(
+                "rounded-full px-2 py-0.5 text-xs font-semibold",
+                result.priceCheck.band === "fair"
+                  ? "bg-safe/15 text-safe"
+                  : result.priceCheck.band === "slightly-low" || result.priceCheck.band === "high"
+                    ? "bg-warn/15 text-warn"
+                    : "bg-danger/15 text-danger",
+              )}
+            >
+              {result.priceCheck.deltaPct > 0 ? `+${result.priceCheck.deltaPct}%` : `${result.priceCheck.deltaPct}%`} vs avg
+            </span>
+          </div>
+          <p className="mt-1.5 text-sm">
+            <span className="font-semibold">RM{result.priceCheck.price}</span>
+            <span className="text-muted-foreground">
+              {" "}
+              vs RM{result.priceCheck.areaAvg} average in {result.priceCheck.areaName}
+            </span>
+          </p>
+          <p className="mt-1 text-xs text-muted-foreground">{result.priceCheck.note}</p>
+        </div>
+      )}
 
       {result.redFlags.length > 0 && (
         <div className="mt-4">

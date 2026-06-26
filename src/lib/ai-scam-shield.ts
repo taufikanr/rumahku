@@ -1,5 +1,6 @@
 import { GoogleGenAI } from "@google/genai";
 import { RED_FLAG_PHRASES } from "@/lib/scam";
+import { AREAS } from "@/lib/constants";
 import type { ScamLevel } from "@/lib/types";
 
 /* ================================================================== */
@@ -23,6 +24,17 @@ export interface ShieldRedFlag {
   why: string;
 }
 
+/** Objective comparison of the asking rent to the area's market average. */
+export interface PriceCheck {
+  areaName: string;
+  areaAvg: number;
+  price: number;
+  /** % difference vs the area average (negative = below market). */
+  deltaPct: number;
+  band: "bait" | "low" | "slightly-low" | "fair" | "high";
+  note: string;
+}
+
 export interface ShieldResult {
   /** 0 = clearly safe, 100 = clearly a scam. */
   score: number;
@@ -36,6 +48,8 @@ export interface ShieldResult {
   nextSteps: string[];
   /** True when Gemini produced the assessment (vs the rule-based fallback). */
   aiUsed: boolean;
+  /** Objective market-price comparison — an evidence signal pasted text alone can't give. */
+  priceCheck?: PriceCheck;
 }
 
 export interface ShieldInput {
@@ -52,6 +66,92 @@ function levelFor(score: number): ScamLevel {
 }
 function verdictFor(level: ScamLevel): string {
   return level === "safe" ? "Looks legitimate" : level === "caution" ? "Be careful" : "Likely a scam";
+}
+
+/* ---- Market-price check: an objective signal that pasted text can't give ---- */
+
+/** Fuzzy-match free-text area to a known KK neighbourhood's average room rent. */
+function matchArea(area: string): { name: string; avgRoomRent: number } | null {
+  const q = area.trim().toLowerCase();
+  if (!q) return null;
+  for (const a of AREAS) {
+    const name = a.name.toLowerCase();
+    const first = name.split(/[\s/]+/)[0];
+    if (q === a.id || q === name || name.includes(q) || q.includes(a.id) || (first.length > 3 && q.includes(first))) {
+      return { name: a.name, avgRoomRent: a.avgRoomRent };
+    }
+  }
+  return null;
+}
+
+/**
+ * Objective "too good to be true" check: compares the asking rent to the area's
+ * market average. Underpricing is the #1 rental-scam signal — and unlike the
+ * wording of a message, it's a hard number we can defend.
+ */
+export function priceMarketCheck(input: ShieldInput): PriceCheck | null {
+  if (!input.price || input.price <= 0 || !input.area) return null;
+  const m = matchArea(input.area);
+  if (!m) return null;
+  const ratio = input.price / m.avgRoomRent;
+  const deltaPct = Math.round((ratio - 1) * 100);
+  const below = Math.abs(deltaPct);
+  let band: PriceCheck["band"];
+  let note: string;
+  if (ratio < 0.5) {
+    band = "bait";
+    note = `RM${input.price} is ${below}% below the RM${m.avgRoomRent} average for ${m.name} — classic bait pricing.`;
+  } else if (ratio < 0.65) {
+    band = "low";
+    note = `RM${input.price} is ${below}% below the RM${m.avgRoomRent} average for ${m.name} — well under market.`;
+  } else if (ratio < 0.82) {
+    band = "slightly-low";
+    note = `RM${input.price} is ${below}% below the RM${m.avgRoomRent} average for ${m.name}.`;
+  } else if (ratio <= 1.3) {
+    band = "fair";
+    note = `RM${input.price} is in line with the RM${m.avgRoomRent} average for ${m.name}.`;
+  } else {
+    band = "high";
+    note = `RM${input.price} is ${deltaPct}% above the RM${m.avgRoomRent} average for ${m.name}.`;
+  }
+  return { areaName: m.name, areaAvg: m.avgRoomRent, price: input.price, deltaPct, band, note };
+}
+
+/** Risk floor implied by underpricing — a strong bait price can't be rated "safe". */
+function priceFloor(band: PriceCheck["band"]): number {
+  return band === "bait" ? 72 : band === "low" ? 50 : band === "slightly-low" ? 30 : 0;
+}
+
+/** Merge the objective price check into a rule- or AI-produced result. */
+function withPriceCheck(result: ShieldResult, input: ShieldInput): ShieldResult {
+  const pc = priceMarketCheck(input);
+  if (!pc) return result;
+  const redFlags = [...result.redFlags];
+  const goodSigns = [...result.goodSigns];
+  let score = result.score;
+  if (pc.band === "bait" || pc.band === "low" || pc.band === "slightly-low") {
+    score = clamp(Math.max(score, priceFloor(pc.band)));
+    if (!redFlags.some((r) => /price|below market|too good|bait/i.test(r.flag))) {
+      redFlags.unshift({
+        flag: pc.band === "bait" ? "Price far below market — too good to be true" : "Price is below the market rate",
+        why: pc.note,
+      });
+    }
+  } else if (pc.band === "fair") {
+    if (!goodSigns.some((g) => /price|market|average/i.test(g))) {
+      goodSigns.unshift(`Price is in line with ${pc.areaName} (RM${pc.areaAvg} avg)`);
+    }
+  }
+  const level = levelFor(score);
+  return {
+    ...result,
+    score,
+    level,
+    verdict: level !== result.level ? verdictFor(level) : result.verdict,
+    redFlags: redFlags.slice(0, 6),
+    goodSigns: goodSigns.slice(0, 6),
+    priceCheck: pc,
+  };
 }
 
 /** Plain-language intent behind each rule-based red flag (for the fallback). */
@@ -155,16 +255,19 @@ export async function aiScamShield(input: ShieldInput): Promise<ShieldResult | n
           .slice(0, 6)
       : [];
 
-    return {
-      score,
-      level,
-      verdict: String(out.verdict ?? verdictFor(level)),
-      summary: String(out.summary ?? ""),
-      redFlags,
-      goodSigns: Array.isArray(out.goodSigns) ? out.goodSigns.map(String).slice(0, 6) : [],
-      nextSteps: Array.isArray(out.nextSteps) ? out.nextSteps.map(String).slice(0, 4) : defaultNextSteps(level),
-      aiUsed: true,
-    };
+    return withPriceCheck(
+      {
+        score,
+        level,
+        verdict: String(out.verdict ?? verdictFor(level)),
+        summary: String(out.summary ?? ""),
+        redFlags,
+        goodSigns: Array.isArray(out.goodSigns) ? out.goodSigns.map(String).slice(0, 6) : [],
+        nextSteps: Array.isArray(out.nextSteps) ? out.nextSteps.map(String).slice(0, 4) : defaultNextSteps(level),
+        aiUsed: true,
+      },
+      input,
+    );
   } catch (err) {
     console.error("aiScamShield (gemini) failed:", err);
     return null;
@@ -212,19 +315,22 @@ export function ruleScamShield(input: ShieldInput): ShieldResult {
 
   score = clamp(score);
   const level = levelFor(score);
-  return {
-    score,
-    level,
-    verdict: verdictFor(level),
-    summary:
-      level === "high"
-        ? "Strong scam signals — do not pay anything before you verify in person."
-        : level === "caution"
-          ? "Some risk here — verify a few things before you pay."
-          : "No major scam signals, but always view the unit before you pay.",
-    redFlags: redFlags.slice(0, 6),
-    goodSigns: goodSigns.slice(0, 4),
-    nextSteps: defaultNextSteps(level),
-    aiUsed: false,
-  };
+  return withPriceCheck(
+    {
+      score,
+      level,
+      verdict: verdictFor(level),
+      summary:
+        level === "high"
+          ? "Strong scam signals — do not pay anything before you verify in person."
+          : level === "caution"
+            ? "Some risk here — verify a few things before you pay."
+            : "No major scam signals, but always view the unit before you pay.",
+      redFlags: redFlags.slice(0, 6),
+      goodSigns: goodSigns.slice(0, 4),
+      nextSteps: defaultNextSteps(level),
+      aiUsed: false,
+    },
+    input,
+  );
 }
